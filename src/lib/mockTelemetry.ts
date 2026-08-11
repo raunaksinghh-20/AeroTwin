@@ -65,9 +65,11 @@ function generateSnapshot(): Telemetry {
     },
 
     fuelCell: {
-      voltage:     fcVoltage,
-      current:     fcCurrent,
-      temperature: jitter(68, 4, 6, 9000),
+      voltage:        fcVoltage,
+      current:        fcCurrent,
+      temperature:    jitter(68, 4, 6, 9000),
+      tankPercentage: clamp(jitter(84, 2, 4, 28000), 10, 100),
+      pressure:       clamp(jitter(294, 5, 2, 14000), 0, 350),
     },
 
     dcBus: {

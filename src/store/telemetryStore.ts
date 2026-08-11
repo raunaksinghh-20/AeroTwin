@@ -30,7 +30,7 @@ const DEFAULT_TELEMETRY: Telemetry = {
   flight: { altitude: 0, speed: 0, roll: 0, pitch: 0, yaw: 0 },
   gps:    { latitude: 0, longitude: 0, satellites: 0 },
   battery:  { voltage: 0, current: 0, percentage: 0, temperature: 0 },
-  fuelCell: { voltage: 0, current: 0, temperature: 0 },
+  fuelCell: { voltage: 0, current: 0, temperature: 0, tankPercentage: 0, pressure: 0 },
   dcBus:    { voltage: 0, current: 0 },
   signal:   { rssi: 0 },
 };

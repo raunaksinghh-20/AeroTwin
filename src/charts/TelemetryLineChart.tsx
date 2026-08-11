@@ -5,6 +5,7 @@
    primitive — no Recharts config is duplicated.
    ──────────────────────────────────────────────────────── */
 
+import { memo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -69,7 +70,7 @@ function AeroTooltip({
 }
 
 
-export default function TelemetryLineChart({
+function TelemetryLineChart({
   data,
   color = "var(--chart-live)",
   yDomain,
@@ -79,14 +80,17 @@ export default function TelemetryLineChart({
   showTooltip = true,
   label,
 }: TelemetryLineChartProps) {
+  const latestTime = data.length > 0 ? data[data.length - 1].time : 0;
+
   // Format x-axis labels as relative seconds
-  const formatTime = (tick: number) => {
-    const ago = Math.round(
-      data.length > 0 ? data[data.length - 1].time - tick : 0,
-    );
-    if (ago <= 0) return "Now";
-    return `-${ago}s`;
-  };
+  const formatTime = useCallback(
+    (tick: number) => {
+      const ago = Math.round(latestTime - tick);
+      if (ago <= 0) return "Now";
+      return `-${ago}s`;
+    },
+    [latestTime],
+  );
 
   return (
     <div className={chartStyles.wrap}>
@@ -155,3 +159,5 @@ export default function TelemetryLineChart({
     </div>
   );
 }
+
+export default memo(TelemetryLineChart);

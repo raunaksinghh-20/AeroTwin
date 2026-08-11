@@ -232,8 +232,7 @@ select:focus-visible {
 
 /* THEME TRANSITIONS */
 
-html[data-theme="standard"],
-html[data-theme="field"] {
+html {
   background: var(--bg-hangar);
 }
 
@@ -280,6 +279,13 @@ body {
 
 
 /* FIELD MODE SELECTION */
+
+@media (prefers-color-scheme: light) {
+  ::selection {
+    background: var(--accent-amber);
+    color: var(--bg-hangar);
+  }
+}
 
 [data-theme="field"] ::selection {
   background: var(--accent-amber);

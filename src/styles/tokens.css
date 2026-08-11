@@ -1,12 +1,11 @@
 /* 
    AEROTWIN — DESIGN TOKENS
-   Standard + Field Mode
+   Standard (Dark Mode) + Field Mode (Light Mode)
 */
 
-/* STANDARD THEME */
+/* STANDARD THEME (DEFAULT / DARK MODE) */
 
-:root,
-:root[data-theme="standard"] {
+:root {
   /* ---------- Surfaces ---------- */
 
   --bg-hangar: #0A0D10;
@@ -35,7 +34,71 @@
 }
 
 
-/* FIELD MODE */
+/* SYSTEM DAY MODE / LIGHT MODE -> FIELD MODE */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-hangar: #F3F2EE;
+    --bg-panel: #FFFFFF;
+    --bg-panel-raised: #EAE8E1;
+
+    --line-rivet: #D7D5CE;
+
+    --text-canopy: #14181C;
+    --text-instrument: #6B6558;
+
+    --accent-amber: #B5730A;
+    --accent-cyan: #0F8E96;
+
+    --status-nominal: #1E9A63;
+    --status-caution: #B5730A;
+    --status-critical: #C93A3F;
+  }
+}
+
+
+/* SYSTEM DARK MODE -> STANDARD MODE */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-hangar: #0A0D10;
+    --bg-panel: #12161B;
+    --bg-panel-raised: #171C22;
+
+    --line-rivet: #232A31;
+
+    --text-canopy: #E8EDF0;
+    --text-instrument: #7C8A96;
+
+    --accent-amber: #F5A623;
+    --accent-cyan: #4FD8E0;
+
+    --status-nominal: #3ECF8E;
+    --status-caution: #F5A623;
+    --status-critical: #FF5A5F;
+  }
+}
+
+
+/* EXPLICIT THEME OVERRIDES */
+
+:root[data-theme="standard"] {
+  --bg-hangar: #0A0D10;
+  --bg-panel: #12161B;
+  --bg-panel-raised: #171C22;
+
+  --line-rivet: #232A31;
+
+  --text-canopy: #E8EDF0;
+  --text-instrument: #7C8A96;
+
+  --accent-amber: #F5A623;
+  --accent-cyan: #4FD8E0;
+
+  --status-nominal: #3ECF8E;
+  --status-caution: #F5A623;
+  --status-critical: #FF5A5F;
+}
 
 :root[data-theme="field"] {
   --bg-hangar: #F3F2EE;

@@ -33,9 +33,11 @@ export interface BatteryData {
 
 /** Hydrogen fuel cell. */
 export interface FuelCellData {
-  voltage: number;      // V
-  current: number;      // A
-  temperature: number;  // °C
+  voltage: number;        // V
+  current: number;        // A
+  temperature: number;    // °C
+  tankPercentage: number; // 0–100 % (H2 fuel level)
+  pressure: number;       // bar
 }
 
 

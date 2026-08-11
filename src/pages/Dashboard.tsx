@@ -9,7 +9,7 @@ import {
   Mountain,
   Gauge as GaugeIcon,
   Battery,
-  Satellite,
+  Flame,
   Clock,
   Zap,
 } from "lucide-react";
@@ -23,8 +23,6 @@ import InstrumentCard from "../components/common/InstrumentCard";
 /* ── Flight ────────────────────────────────────────────── */
 import AttitudeRing from "../components/flight/AttitudeRing";
 import AltitudeChart from "../components/flight/AltitudeChart";
-import PositionPanel from "../components/flight/PositionPanel";
-import SignalPanel from "../components/flight/SignalPanel";
 
 /* ── Power ─────────────────────────────────────────────── */
 import BatteryPanel from "../components/power/BatteryPanel";
@@ -43,8 +41,8 @@ import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
   const flight = useTelemetryStore((s) => s.current.flight);
-  const gps = useTelemetryStore((s) => s.current.gps);
   const battery = useTelemetryStore((s) => s.current.battery);
+  const fuelCell = useTelemetryStore((s) => s.current.fuelCell);
   const connectionStatus = useTelemetryStore((s) => s.connectionStatus);
   const missionStart = useTelemetryStore((s) => s.missionStartTime);
 
@@ -77,6 +75,24 @@ export default function Dashboard() {
     </div>
   );
 
+  // H2 Fuel Tank bar for StatCard
+  const h2TankBar = (
+    <div className={styles.battBar}>
+      <div
+        className={styles.battFill}
+        style={{
+          width: `${fuelCell.tankPercentage}%`,
+          background:
+            fuelCell.tankPercentage <= 15
+              ? "var(--status-critical)"
+              : fuelCell.tankPercentage <= 30
+                ? "var(--status-caution)"
+                : "var(--status-nominal)",
+        }}
+      />
+    </div>
+  );
+
   return (
     <div className={styles.dashboard}>
 
@@ -102,9 +118,11 @@ export default function Dashboard() {
           sub={batteryBar}
         />
         <StatCard
-          label="GPS · SAT"
-          value={gps.satellites}
-          icon={Satellite}
+          label="H₂ TANK · %"
+          value={fuelCell.tankPercentage.toFixed(0)}
+          unit="%"
+          icon={Flame}
+          sub={h2TankBar}
         />
         <StatCard
           label="FLIGHT TIME"
@@ -140,17 +158,6 @@ export default function Dashboard() {
           labelRight={<Zap size={12} strokeWidth={1.6} style={{ color: "var(--chart-dc-bus)" }} />}
         >
           <DcBusPanel />
-        </InstrumentCard>
-      </section>
-
-      {/* ════════════════ ROW 3 — POSITION + SIGNAL ═════════ */}
-      <section className={styles.positionRow}>
-        <InstrumentCard label="POSITION" className={styles.positionCard}>
-          <PositionPanel />
-        </InstrumentCard>
-
-        <InstrumentCard label="SIGNAL · RSSI" live={liveStatus} className={styles.signalCard}>
-          <SignalPanel />
         </InstrumentCard>
       </section>
 

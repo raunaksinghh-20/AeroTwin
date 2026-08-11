@@ -4,7 +4,7 @@
    Used for ALT, SPD, BATT%, GPS SAT, FLIGHT TIME, etc.
    ──────────────────────────────────────────────────────── */
 
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import styles from "./StatCard.module.css";
@@ -27,7 +27,7 @@ interface StatCardProps {
   sub?: ReactNode;
 }
 
-export default function StatCard({
+function StatCard({
   label,
   value,
   unit,
@@ -50,3 +50,5 @@ export default function StatCard({
     </div>
   );
 }
+
+export default memo(StatCard);

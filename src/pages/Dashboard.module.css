@@ -45,45 +45,7 @@
 
 
 /* ════════════════════════════════════════════════════════
-   ROW 2 — ATTITUDE + ALTITUDE CHART
-   ════════════════════════════════════════════════════════ */
-
-.flightRow {
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(360px, 2fr);
-  gap: var(--grid-gutter);
-}
-
-.attitudeCard {
-  min-height: 200px;
-}
-
-.altitudeCard {
-  min-height: 200px;
-}
-
-
-/* ════════════════════════════════════════════════════════
-   ROW 3 — POSITION + SIGNAL
-   ════════════════════════════════════════════════════════ */
-
-.positionRow {
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(360px, 2fr);
-  gap: var(--grid-gutter);
-}
-
-.positionCard {
-  min-height: 160px;
-}
-
-.signalCard {
-  min-height: 160px;
-}
-
-
-/* ════════════════════════════════════════════════════════
-   ROW 4 — POWER PANELS (Battery, Fuel Cell, DC Bus)
+   ROW 2 — POWER PANELS (Battery, Fuel Cell, DC Bus)
    ════════════════════════════════════════════════════════ */
 
 .powerRow {
@@ -94,18 +56,39 @@
 
 
 /* ════════════════════════════════════════════════════════
-   ROW 5 — CONTRIBUTION + GAUGES
+   ROW 3 — ATTITUDE + ALTITUDE CHART
+   ════════════════════════════════════════════════════════ */
+
+.flightRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gutter);
+}
+
+.attitudeCard {
+  grid-column: span 1;
+  min-height: 200px;
+}
+
+.altitudeCard {
+  grid-column: span 2;
+  min-height: 200px;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 4 — CONTRIBUTION + GAUGES
    ════════════════════════════════════════════════════════ */
 
 .gaugeRow {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--grid-gutter);
 }
 
 
 /* ════════════════════════════════════════════════════════
-   ROW 6 — SYSTEM STATUS + ALERTS
+   ROW 5 — SYSTEM STATUS + ALERTS
    ════════════════════════════════════════════════════════ */
 
 .systemRow {
@@ -146,13 +129,17 @@
 }
 
 @media (max-width: 1050px) {
-  .flightRow,
-  .positionRow {
+  .flightRow {
     grid-template-columns: 1fr;
   }
 
+  .attitudeCard,
+  .altitudeCard {
+    grid-column: span 1;
+  }
+
   .gaugeRow {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .systemRow {

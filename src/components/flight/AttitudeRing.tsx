@@ -31,39 +31,41 @@ export default function AttitudeRing() {
         {/* Background disc */}
         <circle cx="70" cy="70" r="58" fill="var(--bg-panel-raised)" />
 
-        {/* Horizon group — rotates with roll, translates with pitch */}
-        <g
-          clipPath="url(#att-ring-clip)"
-          style={{
-            transform: `rotate(${roll}deg) translateY(${pitch * -3}px)`,
-            transformOrigin: "70px 70px",
-          }}
-        >
-          {/* Ground (amber, below horizon) */}
-          <rect
-            x="-30" y="70"
-            width="200" height="120"
-            fill="var(--accent-amber)"
-            opacity="0.22"
-          />
-          {/* Horizon line */}
-          <line
-            x1="-30" y1="70" x2="170" y2="70"
-            stroke="var(--accent-amber)"
-            strokeWidth="2"
-          />
-
-          {/* Pitch ladder marks */}
-          {[-20, -10, 10, 20].map((deg) => (
-            <line
-              key={deg}
-              x1="50" y1={70 - deg * 2}
-              x2="90" y2={70 - deg * 2}
-              stroke="var(--accent-amber)"
-              strokeWidth="0.8"
-              opacity="0.4"
+        {/* Fixed outer clipping group */}
+        <g clipPath="url(#att-ring-clip)">
+          {/* Horizon group — rotates with roll, translates with pitch */}
+          <g
+            style={{
+              transform: `rotate(${roll}deg) translateY(${pitch * -3}px)`,
+              transformOrigin: "70px 70px",
+            }}
+          >
+            {/* Ground (amber, below horizon) */}
+            <rect
+              x="-40" y="70"
+              width="220" height="150"
+              fill="var(--accent-amber)"
+              opacity="0.25"
             />
-          ))}
+            {/* Horizon line */}
+            <line
+              x1="-40" y1="70" x2="180" y2="70"
+              stroke="var(--accent-amber)"
+              strokeWidth="2"
+            />
+
+            {/* Pitch ladder marks */}
+            {[-20, -10, 10, 20].map((deg) => (
+              <line
+                key={deg}
+                x1="50" y1={70 - deg * 2}
+                x2="90" y2={70 - deg * 2}
+                stroke="var(--accent-amber)"
+                strokeWidth="0.8"
+                opacity="0.4"
+              />
+            ))}
+          </g>
         </g>
 
         {/* Ring border */}
