@@ -38,7 +38,6 @@ export default function FuelCellPanel() {
           color="var(--chart-fuel-cell)"
           unit="V"
           height={100}
-          label="Live"
         />
         <TelemetryLineChart
           data={currentHistory}

@@ -5,15 +5,16 @@
    Never relies on color alone (accessibility).
    ──────────────────────────────────────────────────────── */
 
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import type { AlertSeverity } from "../../types/telemetry";
 
 import styles from "./StatusChip.module.css";
 
 
-const ICONS: Record<AlertSeverity, string> = {
-  nominal:  "✓",
-  caution:  "▲",
-  critical: "✕",
+const ICONS = {
+  nominal: CheckCircle2,
+  caution: AlertTriangle,
+  critical: XCircle,
 };
 
 const DEFAULT_LABELS: Record<AlertSeverity, string> = {
@@ -35,13 +36,15 @@ export default function StatusChip({
   label,
   className = "",
 }: StatusChipProps) {
+  const Icon = ICONS[status];
+
   return (
     <span
       className={`${styles.chip} ${styles[status]} ${className}`}
       role="status"
     >
-      <span className={styles.icon} aria-hidden="true">{ICONS[status]}</span>
-      {label ?? DEFAULT_LABELS[status]}
+      <Icon size={12} strokeWidth={1.8} className={styles.icon} aria-hidden="true" />
+      <span>{label ?? DEFAULT_LABELS[status]}</span>
     </span>
   );
 }

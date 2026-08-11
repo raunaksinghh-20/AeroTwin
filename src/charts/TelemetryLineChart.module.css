@@ -17,13 +17,13 @@
   right: 8px;
 
   font-family: var(--font-data);
-  font-size: 9px;
-  letter-spacing: 0.06em;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 
   color: var(--text-instrument);
 
-  opacity: 0.7;
+  opacity: 0.75;
 
   pointer-events: none;
   z-index: 1;

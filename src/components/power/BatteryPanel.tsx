@@ -38,7 +38,6 @@ export default function BatteryPanel() {
           color="var(--chart-battery)"
           unit="V"
           height={100}
-          label="Live"
         />
         <TelemetryLineChart
           data={currentHistory}

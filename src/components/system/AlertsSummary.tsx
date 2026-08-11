@@ -4,6 +4,7 @@
    ──────────────────────────────────────────────────────── */
 
 import { useMemo } from "react";
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { useTelemetryStore } from "../../store/telemetryStore";
 import {
   BATTERY_THRESHOLDS,
@@ -16,10 +17,10 @@ import type { AlertSeverity } from "../../types/telemetry";
 import styles from "./AlertsSummary.module.css";
 
 
-const SEVERITY_ICONS: Record<AlertSeverity, string> = {
-  nominal:  "✓",
-  caution:  "▲",
-  critical: "✕",
+const SEVERITY_ICONS = {
+  nominal:  CheckCircle2,
+  caution:  AlertTriangle,
+  critical: XCircle,
 };
 
 interface DisplayAlert {
@@ -100,41 +101,42 @@ export default function AlertsSummary() {
     <div className={styles.panel}>
       {allNominal && (
         <div className={`${styles.alertRow} ${styles.nominal}`}>
-          <span className={styles.icon}>✓</span>
+          <CheckCircle2 size={13} strokeWidth={1.8} className={styles.icon} />
           <span>All systems normal</span>
         </div>
       )}
 
-      {alerts.map((alert) => (
-        <div
-          key={alert.id}
-          className={`${styles.alertRow} ${styles[alert.severity]}`}
-        >
-          <span className={styles.icon}>
-            {SEVERITY_ICONS[alert.severity]}
-          </span>
-          <span className={styles.message}>{alert.message}</span>
-          {alert.detail && (
-            <span className={styles.detail}>{alert.detail}</span>
-          )}
-        </div>
-      ))}
+      {alerts.map((alert) => {
+        const Icon = SEVERITY_ICONS[alert.severity];
+        return (
+          <div
+            key={alert.id}
+            className={`${styles.alertRow} ${styles[alert.severity]}`}
+          >
+            <Icon size={13} strokeWidth={1.8} className={styles.icon} />
+            <span className={styles.message}>{alert.message}</span>
+            {alert.detail && (
+              <span className={styles.detail}>{alert.detail}</span>
+            )}
+          </div>
+        );
+      })}
 
       {/* Always show some baseline items when nominal */}
       {allNominal && (
         <>
           <div className={`${styles.alertRow} ${styles.nominal}`}>
-            <span className={styles.icon}>✓</span>
+            <CheckCircle2 size={13} strokeWidth={1.8} className={styles.icon} />
             <span className={styles.message}>Fuel cell temperature normal</span>
             <span className={styles.detail}>{fuelCell.temperature.toFixed(0)} °C</span>
           </div>
           <div className={`${styles.alertRow} ${styles.nominal}`}>
-            <span className={styles.icon}>✓</span>
+            <CheckCircle2 size={13} strokeWidth={1.8} className={styles.icon} />
             <span className={styles.message}>Battery temperature normal</span>
             <span className={styles.detail}>{battery.temperature.toFixed(0)} °C</span>
           </div>
           <div className={`${styles.alertRow} ${styles.nominal}`}>
-            <span className={styles.icon}>✓</span>
+            <CheckCircle2 size={13} strokeWidth={1.8} className={styles.icon} />
             <span className={styles.message}>No active faults</span>
           </div>
         </>

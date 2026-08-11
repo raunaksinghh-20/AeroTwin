@@ -38,7 +38,6 @@ export default function DcBusPanel() {
           color="var(--chart-dc-bus)"
           unit="V"
           height={100}
-          label="Live"
         />
         <TelemetryLineChart
           data={currentHistory}

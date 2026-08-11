@@ -18,7 +18,6 @@ export default function AltitudeChart() {
       height={180}
       showGrid
       showTooltip
-      label="Live"
     />
   );
 }

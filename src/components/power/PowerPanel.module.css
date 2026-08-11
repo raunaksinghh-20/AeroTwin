@@ -25,11 +25,12 @@
   align-items: center;
   gap: 5px;
 
-  font-family: var(--font-data);
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 
-  color: var(--text-instrument);
+  color: var(--text-canopy);
 }
 
 .legendDot {
@@ -85,9 +86,10 @@
 }
 
 .readoutLabel {
-  font-family: var(--font-data);
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 
   color: var(--text-instrument);

@@ -30,11 +30,13 @@
 
   margin-bottom: var(--space-2);
 
-  font: var(--type-panel-label);
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 
-  color: var(--text-instrument);
+  color: var(--text-canopy);
 
   white-space: nowrap;
   overflow: hidden;

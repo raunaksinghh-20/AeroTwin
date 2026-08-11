@@ -43,13 +43,14 @@
 
 
 .readoutLabel {
-  font-family: var(--font-data);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 
   color: var(--text-instrument);
 
-  min-width: 42px;
+  min-width: 44px;
 }
 
 

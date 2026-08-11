@@ -99,7 +99,7 @@ function TelemetryLineChart({
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={data}
-          margin={{ top: 8, right: 8, bottom: 0, left: -10 }}
+          margin={{ top: 18, right: 8, bottom: 0, left: -10 }}
         >
           {showGrid && (
             <CartesianGrid
