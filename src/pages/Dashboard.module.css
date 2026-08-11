@@ -1,0 +1,195 @@
+/* AEROTWIN — DASHBOARD LAYOUT */
+
+
+.dashboard {
+  padding: var(--page-padding);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-gutter);
+
+  /* Allow vertical scroll */
+  min-height: 0;
+
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 1 — STAT CARDS
+   ════════════════════════════════════════════════════════ */
+
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--grid-gutter);
+}
+
+
+/* Battery bar inside StatCard sub-content */
+
+.battBar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg-panel-raised);
+  overflow: hidden;
+}
+
+.battFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 500ms ease, background 500ms ease;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 2 — ATTITUDE + ALTITUDE CHART
+   ════════════════════════════════════════════════════════ */
+
+.flightRow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 2fr);
+  gap: var(--grid-gutter);
+}
+
+.attitudeCard {
+  min-height: 200px;
+}
+
+.altitudeCard {
+  min-height: 200px;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 3 — POSITION + SIGNAL
+   ════════════════════════════════════════════════════════ */
+
+.positionRow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 2fr);
+  gap: var(--grid-gutter);
+}
+
+.positionCard {
+  min-height: 160px;
+}
+
+.signalCard {
+  min-height: 160px;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 4 — POWER PANELS (Battery, Fuel Cell, DC Bus)
+   ════════════════════════════════════════════════════════ */
+
+.powerRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gutter);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 5 — CONTRIBUTION + GAUGES
+   ════════════════════════════════════════════════════════ */
+
+.gaugeRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--grid-gutter);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   ROW 6 — SYSTEM STATUS + ALERTS
+   ════════════════════════════════════════════════════════ */
+
+.systemRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--grid-gutter);
+}
+
+
+/* ── "View all" link ───────────────────────────────────── */
+
+.viewAll {
+  font-family: var(--font-ui);
+  font-size: 11px;
+
+  color: var(--accent-cyan);
+
+  cursor: pointer;
+}
+
+.viewAll:hover {
+  text-decoration: underline;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ════════════════════════════════════════════════════════ */
+
+@media (max-width: 1280px) {
+  .statRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .powerRow {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 1050px) {
+  .flightRow,
+  .positionRow {
+    grid-template-columns: 1fr;
+  }
+
+  .gaugeRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .systemRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .statRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .powerRow {
+    grid-template-columns: 1fr;
+  }
+
+  .gaugeRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ── Reduced motion ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .battFill {
+    transition: none;
+  }
+}

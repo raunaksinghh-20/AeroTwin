@@ -1,49 +1,22 @@
-import { useEffect, useState } from "react";
-import { listen } from "@tauri-apps/api/event";
-import "./App.css";
+/* ────────────────────────────────────────────────────────
+   AEROTWIN — APP (thin shell)
+   Mounts the router and the global telemetry hook once.
+   All routing / layout lives in routes.tsx + AppShell.
+   ──────────────────────────────────────────────────────── */
 
-function App() {
-  const [message, setMessage] = useState("Waiting for UDP data...");
-  const [connected, setConnected] = useState(false);
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-  useEffect(() => {
-    let unlisten: (() => void) | undefined;
+import { routes } from "./routes";
+import { useTauriTelemetry } from "./hooks/useTauriTelemetry";
 
-    const setupListener = async () => {
-      unlisten = await listen<string>("udp-message", (event) => {
-        console.log("UDP message received:", event.payload);
 
-        setMessage(event.payload);
-        setConnected(true);
-      });
-    };
+const router = createBrowserRouter(routes);
 
-    setupListener();
 
-    return () => {
-      if (unlisten) {
-        unlisten();
-      }
-    };
-  }, []);
+export default function App() {
+  // Global telemetry — starts mock data now; will be
+  // swapped for real Tauri UDP events later.
+  useTauriTelemetry();
 
-  return (
-    <main className="container">
-      <h1>ESP32 UDP Test</h1>
-
-      <div className="status">
-        <span className={`status-dot ${connected ? "connected" : "waiting"}`} />
-
-        <span>{connected ? "UDP Connected" : "Waiting for ESP32..."}</span>
-      </div>
-
-      <div className="message-box">
-        <p>Latest UDP Message</p>
-
-        <h2>{message}</h2>
-      </div>
-    </main>
-  );
+  return <RouterProvider router={router} />;
 }
-
-export default App;

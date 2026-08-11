@@ -1,0 +1,92 @@
+/* AEROTWIN — POSITION PANEL */
+
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-2);
+}
+
+
+/* ── Header row ────────────────────────────────────────── */
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+
+.coords {
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+
+  color: var(--text-canopy);
+}
+
+
+.satRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  color: var(--text-instrument);
+}
+
+.satValue {
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+
+  color: var(--text-canopy);
+}
+
+.satLabel {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+
+  color: var(--text-instrument);
+}
+
+
+/* ── Grid-dot map ──────────────────────────────────────── */
+
+.mapBox {
+  flex: 1;
+  min-height: 75px;
+
+  position: relative;
+
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--button-radius);
+
+  background-image:
+    linear-gradient(var(--line-rivet) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-rivet) 1px, transparent 1px);
+  background-size: 18px 18px;
+  background-position: center;
+
+  overflow: hidden;
+}
+
+
+.mapPin {
+  position: absolute;
+  top: 46%;
+  left: 54%;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: var(--accent-amber);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-amber) 25%, transparent);
+}

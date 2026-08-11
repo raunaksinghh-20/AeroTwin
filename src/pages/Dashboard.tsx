@@ -1,0 +1,206 @@
+/* ────────────────────────────────────────────────────────
+   AEROTWIN — DASHBOARD PAGE
+   Assembles all flight, power, and system panels into
+   a responsive instrument-panel grid.
+   ──────────────────────────────────────────────────────── */
+
+import { useMemo } from "react";
+import {
+  Mountain,
+  Gauge as GaugeIcon,
+  Battery,
+  Satellite,
+  Clock,
+  Zap,
+} from "lucide-react";
+
+import { useTelemetryStore } from "../store/telemetryStore";
+
+/* ── Common ────────────────────────────────────────────── */
+import StatCard from "../components/common/StatCard";
+import InstrumentCard from "../components/common/InstrumentCard";
+
+/* ── Flight ────────────────────────────────────────────── */
+import AttitudeRing from "../components/flight/AttitudeRing";
+import AltitudeChart from "../components/flight/AltitudeChart";
+import PositionPanel from "../components/flight/PositionPanel";
+import SignalPanel from "../components/flight/SignalPanel";
+
+/* ── Power ─────────────────────────────────────────────── */
+import BatteryPanel from "../components/power/BatteryPanel";
+import FuelCellPanel from "../components/power/FuelCellPanel";
+import DcBusPanel from "../components/power/DcBusPanel";
+import PowerContribution from "../components/power/PowerContribution";
+import BusVoltageGauge from "../components/power/BusVoltageGauge";
+import BusCurrentGauge from "../components/power/BusCurrentGauge";
+
+/* ── System ────────────────────────────────────────────── */
+import SystemStatusStrip from "../components/system/SystemStatusStrip";
+import AlertsSummary from "../components/system/AlertsSummary";
+
+import styles from "./Dashboard.module.css";
+
+
+export default function Dashboard() {
+  const flight = useTelemetryStore((s) => s.current.flight);
+  const gps = useTelemetryStore((s) => s.current.gps);
+  const battery = useTelemetryStore((s) => s.current.battery);
+  const connectionStatus = useTelemetryStore((s) => s.connectionStatus);
+  const missionStart = useTelemetryStore((s) => s.missionStartTime);
+
+  const liveStatus = connectionStatus === "connected" ? "live" as const : "lost" as const;
+
+  // Mission elapsed time
+  const missionElapsed = useMemo(() => {
+    const elapsed = Math.floor((Date.now() - missionStart) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
+    const s = String(elapsed % 60).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  }, [missionStart]);
+
+  // Battery bar for StatCard
+  const batteryBar = (
+    <div className={styles.battBar}>
+      <div
+        className={styles.battFill}
+        style={{
+          width: `${battery.percentage}%`,
+          background:
+            battery.percentage <= 15
+              ? "var(--status-critical)"
+              : battery.percentage <= 30
+                ? "var(--status-caution)"
+                : "var(--status-nominal)",
+        }}
+      />
+    </div>
+  );
+
+  return (
+    <div className={styles.dashboard}>
+
+      {/* ════════════════ ROW 1 — STAT CARDS ════════════════ */}
+      <section className={styles.statRow}>
+        <StatCard
+          label="ALT · M"
+          value={flight.altitude.toFixed(1)}
+          unit="m"
+          icon={Mountain}
+        />
+        <StatCard
+          label="SPD · M/S"
+          value={flight.speed.toFixed(1)}
+          unit="m/s"
+          icon={GaugeIcon}
+        />
+        <StatCard
+          label="BATT · %"
+          value={battery.percentage.toFixed(0)}
+          unit="%"
+          icon={Battery}
+          sub={batteryBar}
+        />
+        <StatCard
+          label="GPS · SAT"
+          value={gps.satellites}
+          icon={Satellite}
+        />
+        <StatCard
+          label="FLIGHT TIME"
+          value={missionElapsed}
+          icon={Clock}
+        />
+      </section>
+
+      {/* ════════════════ ROW 2 — POWER PANELS ══════════════ */}
+      <section className={styles.powerRow}>
+        <InstrumentCard
+          label="BATTERY (LiPo)"
+          live={liveStatus}
+          bracketFrame
+          labelRight={<Zap size={12} strokeWidth={1.6} style={{ color: "var(--chart-battery)" }} />}
+        >
+          <BatteryPanel />
+        </InstrumentCard>
+
+        <InstrumentCard
+          label="FUEL CELL (H₂)"
+          live={liveStatus}
+          bracketFrame
+          labelRight={<Zap size={12} strokeWidth={1.6} style={{ color: "var(--chart-fuel-cell)" }} />}
+        >
+          <FuelCellPanel />
+        </InstrumentCard>
+
+        <InstrumentCard
+          label="DC BUS (52V)"
+          live={liveStatus}
+          bracketFrame
+          labelRight={<Zap size={12} strokeWidth={1.6} style={{ color: "var(--chart-dc-bus)" }} />}
+        >
+          <DcBusPanel />
+        </InstrumentCard>
+      </section>
+
+      {/* ════════════════ ROW 3 — POSITION + SIGNAL ═════════ */}
+      <section className={styles.positionRow}>
+        <InstrumentCard label="POSITION" className={styles.positionCard}>
+          <PositionPanel />
+        </InstrumentCard>
+
+        <InstrumentCard label="SIGNAL · RSSI" live={liveStatus} className={styles.signalCard}>
+          <SignalPanel />
+        </InstrumentCard>
+      </section>
+
+      {/* ════════════════ ROW 4 — ATTITUDE + ALTITUDE ════════ */}
+      <section className={styles.flightRow}>
+        <InstrumentCard
+          label="ATTITUDE"
+          live={liveStatus}
+          bracketFrame
+          className={styles.attitudeCard}
+        >
+          <AttitudeRing />
+        </InstrumentCard>
+
+        <InstrumentCard
+          label="ALTITUDE · TIME"
+          live={liveStatus}
+          bracketFrame
+          className={styles.altitudeCard}
+        >
+          <AltitudeChart />
+        </InstrumentCard>
+      </section>
+
+      {/* ════════════════ ROW 5 — CONTRIBUTION + GAUGES ═════ */}
+      <section className={styles.gaugeRow}>
+        <InstrumentCard label="POWER SOURCE CONTRIBUTION">
+          <PowerContribution />
+        </InstrumentCard>
+
+        <InstrumentCard label="BUS VOLTAGE">
+          <BusVoltageGauge />
+        </InstrumentCard>
+
+        <InstrumentCard label="BUS CURRENT">
+          <BusCurrentGauge />
+        </InstrumentCard>
+      </section>
+
+      {/* ════════════════ ROW 6 — SYSTEM STATUS ═════════════ */}
+      <section className={styles.systemRow}>
+        <InstrumentCard label="SYSTEM STATUS">
+          <SystemStatusStrip />
+        </InstrumentCard>
+
+        <InstrumentCard label="ALERTS" labelRight={<span className={styles.viewAll}>View all</span>}>
+          <AlertsSummary />
+        </InstrumentCard>
+      </section>
+
+    </div>
+  );
+}

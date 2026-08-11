@@ -1,0 +1,143 @@
+/* AEROTWIN — POWER CONTRIBUTION */
+
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+
+/* ── Labels row ────────────────────────────────────────── */
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: var(--space-2);
+}
+
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sourceLabel {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+
+  color: var(--text-instrument);
+}
+
+.sourceValue {
+  font-family: var(--font-data);
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+
+  color: var(--text-canopy);
+}
+
+
+/* ── Horizontal bar ────────────────────────────────────── */
+
+.bar {
+  display: flex;
+
+  height: 10px;
+
+  border-radius: 5px;
+
+  overflow: hidden;
+
+  background: var(--bg-panel-raised);
+}
+
+.barBattery {
+  height: 100%;
+
+  background: var(--chart-battery);
+
+  transition: width 500ms ease;
+}
+
+.barFuelCell {
+  height: 100%;
+
+  background: var(--chart-fuel-cell);
+
+  transition: width 500ms ease;
+}
+
+
+/* ── Dominant source ───────────────────────────────────── */
+
+.dominant {
+  margin-top: var(--space-3);
+
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-align: center;
+
+  color: var(--text-instrument);
+}
+
+.dominant strong {
+  color: var(--text-canopy);
+  font-weight: 500;
+}
+
+
+/* ── Power readout ─────────────────────────────────────── */
+
+.powers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+
+  margin-top: auto;
+  padding-top: var(--space-3);
+
+  border-top: 1px solid var(--line-rivet);
+}
+
+.powerItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  min-width: 60px;
+}
+
+.powerValue {
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+
+  color: var(--text-canopy);
+}
+
+.powerLabel {
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: var(--text-instrument);
+}
+
+
+/* ── Reduced motion ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .barBattery,
+  .barFuelCell {
+    transition: none;
+  }
+}
