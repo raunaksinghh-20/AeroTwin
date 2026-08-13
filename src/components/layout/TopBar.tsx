@@ -23,7 +23,7 @@ export default function TopBar({ pageTitle = "DASHBOARD" }: TopBarProps) {
   const { theme, setTheme } = useTheme();
 
   const connected = connectionStatus === "connected";
-  const udpPort = 14550;
+  const udpPort = 8888;
 
   const themeOptions: { mode: ThemeMode; label: string; icon: typeof Monitor }[] = [
     { mode: "system", label: "System", icon: Monitor },

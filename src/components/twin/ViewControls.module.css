@@ -1,0 +1,51 @@
+/* ViewControls.module.css */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: color-mix(in srgb, var(--bg-panel) 90%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--button-radius);
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.icon {
+  color: var(--text-instrument);
+  margin-right: 4px;
+}
+
+.btn {
+  all: unset;
+  cursor: pointer;
+  font: 500 11px/1 var(--font-data);
+  color: var(--text-instrument);
+  padding: 5px 8px;
+  border-radius: var(--button-radius);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  letter-spacing: 0.04em;
+}
+
+.btn:hover {
+  background: rgba(79, 216, 224, 0.12);
+  color: var(--accent-cyan);
+}
+
+.btn:active {
+  background: rgba(79, 216, 224, 0.22);
+}
+
+.reset {
+  margin-left: 4px;
+  border-left: 1px solid var(--line-rivet);
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+}

@@ -14,6 +14,7 @@ import type {
   TelemetryHistory,
   TelemetryPoint,
 } from "../types/telemetry";
+import { evaluateTelemetryAlerts } from "../lib/thresholds";
 
 
 /* ── Constants ─────────────────────────────────────────── */
@@ -33,6 +34,7 @@ const DEFAULT_TELEMETRY: Telemetry = {
   fuelCell: { voltage: 0, current: 0, temperature: 0, tankPercentage: 0, pressure: 0 },
   dcBus:    { voltage: 0, current: 0 },
   signal:   { rssi: 0 },
+  motor:    { power: 0 },
 };
 
 function emptyHistory(): TelemetryHistory {
@@ -45,6 +47,7 @@ function emptyHistory(): TelemetryHistory {
     fuelCellCurrent: [],
     dcBusVoltage: [],
     dcBusCurrent: [],
+    motorPower: [],
     rssi: [],
   };
 }
@@ -108,9 +111,17 @@ export const useTelemetryStore = create<TelemetryStore>((set) => ({
   updateTelemetry: (t) =>
     set((state) => {
       const elapsed = (t.timestamp - state.missionStartTime) / 1000;
+      const rawMotor = t.motor as unknown;
+      const motorPowerVal =
+        typeof rawMotor === "number"
+          ? rawMotor
+          : t.motor?.power ?? (t.battery.voltage * t.battery.current + t.fuelCell.voltage * t.fuelCell.current);
+
+      const newAlerts = evaluateTelemetryAlerts(t);
 
       return {
         current: t,
+        alerts: newAlerts,
         history: {
           altitude:        pushPoint(state.history.altitude,        elapsed, t.flight.altitude),
           speed:           pushPoint(state.history.speed,           elapsed, t.flight.speed),
@@ -120,12 +131,17 @@ export const useTelemetryStore = create<TelemetryStore>((set) => ({
           fuelCellCurrent: pushPoint(state.history.fuelCellCurrent, elapsed, t.fuelCell.current),
           dcBusVoltage:    pushPoint(state.history.dcBusVoltage,    elapsed, t.dcBus.voltage),
           dcBusCurrent:    pushPoint(state.history.dcBusCurrent,    elapsed, t.dcBus.current),
+          motorPower:      pushPoint(state.history.motorPower,      elapsed, motorPowerVal),
           rssi:            pushPoint(state.history.rssi,            elapsed, t.signal.rssi),
         },
       };
     }),
 
-  setConnectionStatus: (s) => set({ connectionStatus: s }),
+  setConnectionStatus: (s) =>
+    set((state) => ({
+      connectionStatus: s,
+      missionStartTime: s === "disconnected" ? Date.now() : state.missionStartTime,
+    })),
 
   setAlerts: (a) => set({ alerts: a }),
 

@@ -29,29 +29,44 @@ export default function PowerContribution() {
         <div className={styles.source}>
           <span className={styles.sourceLabel}>Battery</span>
           <span className={styles.sourceValue} data-live="true">
-            {batteryPct.toFixed(0)}%
+            {batteryPct.toFixed(0)}
+            <span className={styles.unit}>%</span>
           </span>
         </div>
         <div className={styles.source} style={{ textAlign: "right" }}>
           <span className={styles.sourceLabel}>Fuel Cell</span>
           <span className={styles.sourceValue} data-live="true">
-            {fuelCellPct.toFixed(0)}%
+            {fuelCellPct.toFixed(0)}
+            <span className={styles.unit}>%</span>
           </span>
         </div>
       </div>
 
-      {/* Horizontal bar */}
-      <div className={styles.bar}>
+      {/* Horizontal bar container with pointer */}
+      <div className={styles.barContainer}>
+        {/* Pointer arrow pointing to junction from above */}
         <div
-          className={styles.barBattery}
-          style={{ width: `${batteryPct}%` }}
-          aria-label={`Battery: ${batteryPct.toFixed(0)}%`}
-        />
-        <div
-          className={styles.barFuelCell}
-          style={{ width: `${fuelCellPct}%` }}
-          aria-label={`Fuel Cell: ${fuelCellPct.toFixed(0)}%`}
-        />
+          className={styles.pointerWrap}
+          style={{ left: `${batteryPct}%` }}
+          aria-hidden="true"
+        >
+          <svg className={styles.pointerIcon} width="12" height="8" viewBox="0 0 12 8">
+            <path d="M 0 0 L 12 0 L 6 8 Z" fill="var(--text-canopy)" />
+          </svg>
+        </div>
+
+        <div className={styles.bar}>
+          <div
+            className={styles.barBattery}
+            style={{ width: `${batteryPct}%` }}
+            aria-label={`Battery: ${batteryPct.toFixed(0)}%`}
+          />
+          <div
+            className={styles.barFuelCell}
+            style={{ width: `${fuelCellPct}%` }}
+            aria-label={`Fuel Cell: ${fuelCellPct.toFixed(0)}%`}
+          />
+        </div>
       </div>
 
       {/* Dominant source */}

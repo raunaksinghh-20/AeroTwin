@@ -5,7 +5,7 @@
    primitive — no Recharts config is duplicated.
    ──────────────────────────────────────────────────────── */
 
-import { memo, useCallback } from "react";
+import { memo, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -20,6 +20,7 @@ import type { TelemetryPoint } from "../types/telemetry";
 
 import chartStyles from "./TelemetryLineChart.module.css";
 
+const X_TICKS = [-30, -20, -10, 0];
 
 interface TelemetryLineChartProps {
   /** Array of { time, value } points. */
@@ -54,10 +55,12 @@ function AeroTooltip({
   unit,
 }: {
   active?: boolean;
-  payload?: Array<{ value: number }>;
+  payload?: Array<{ value: number | null }>;
   unit?: string;
 }) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length || payload[0].value === null || payload[0].value === undefined) {
+    return null;
+  }
 
   return (
     <div className={chartStyles.tooltip}>
@@ -66,6 +69,38 @@ function AeroTooltip({
         {unit ? ` ${unit}` : ""}
       </span>
     </div>
+  );
+}
+
+/** Custom tick renderer for perfectly spaced and edge-aligned time labels. */
+function CustomXAxisTick(props: {
+  x?: number;
+  y?: number;
+  payload?: { value: number };
+}) {
+  const { x = 0, y = 0, payload } = props;
+  if (!payload) return null;
+  const val = payload.value;
+
+  let textAnchor: "start" | "middle" | "end" = "middle";
+  if (val === -30) textAnchor = "start";
+  if (val === 0) textAnchor = "end";
+
+  const label = val === 0 ? "Now" : `${val}s`;
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={12}
+        textAnchor={textAnchor}
+        fill="var(--text-instrument)"
+        fontSize={10}
+      >
+        {label}
+      </text>
+    </g>
   );
 }
 
@@ -82,15 +117,40 @@ function TelemetryLineChart({
 }: TelemetryLineChartProps) {
   const latestTime = data.length > 0 ? data[data.length - 1].time : 0;
 
-  // Format x-axis labels as relative seconds
-  const formatTime = useCallback(
-    (tick: number) => {
-      const ago = Math.round(latestTime - tick);
-      if (ago <= 0) return "Now";
-      return `-${ago}s`;
-    },
-    [latestTime],
-  );
+  // Filter and compute relative time points (-30 to 0) relative to the latest data point
+  const chartData = useMemo(() => {
+    if (data.length === 0) return [];
+
+    // Only keep data points recorded within the 30-second window
+    const filtered = data.filter((d) => d.time >= latestTime - 30);
+    if (filtered.length === 0) return [];
+
+    const result: Array<{ relTime: number; value: number | null }> = [];
+
+    for (let i = 0; i < filtered.length; i++) {
+      const point = filtered[i];
+      const relTime = point.time - latestTime;
+
+      if (i > 0) {
+        const prevPoint = filtered[i - 1];
+        // If there is a time gap > 3s (e.g., from tab inactivity/background throttling),
+        // insert a null point to break the line graph segment cleanly.
+        if (point.time - prevPoint.time > 3) {
+          result.push({
+            relTime: prevPoint.time - latestTime + 0.01,
+            value: null,
+          });
+        }
+      }
+
+      result.push({
+        relTime,
+        value: point.value,
+      });
+    }
+
+    return result;
+  }, [data, latestTime]);
 
   return (
     <div className={chartStyles.wrap}>
@@ -98,8 +158,8 @@ function TelemetryLineChart({
 
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
-          data={data}
-          margin={{ top: 18, right: 8, bottom: 0, left: -10 }}
+          data={chartData}
+          margin={{ top: 18, right: 8, bottom: 0, left: 2 }}
         >
           {showGrid && (
             <CartesianGrid
@@ -111,13 +171,16 @@ function TelemetryLineChart({
           )}
 
           <XAxis
-            dataKey="time"
-            tickFormatter={formatTime}
+            dataKey="relTime"
+            type="number"
+            domain={[-30, 0]}
+            ticks={X_TICKS}
+            tick={<CustomXAxisTick />}
             stroke="var(--line-rivet)"
-            tick={{ fill: "var(--text-instrument)", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
-            minTickGap={30}
+            interval={0}
+            allowDataOverflow={true}
           />
 
           <YAxis
@@ -126,7 +189,7 @@ function TelemetryLineChart({
             tick={{ fill: "var(--text-instrument)", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
-            width={32}
+            width={36}
             tickFormatter={(v: number) => v.toFixed(0)}
           />
 
@@ -146,6 +209,7 @@ function TelemetryLineChart({
             stroke={color}
             strokeWidth={1.5}
             dot={false}
+            connectNulls={false}
             activeDot={{
               r: 3,
               fill: color,

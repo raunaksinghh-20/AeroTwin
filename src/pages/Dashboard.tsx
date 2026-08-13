@@ -12,6 +12,7 @@ import {
   Flame,
   Clock,
   Zap,
+  WifiOff,
 } from "lucide-react";
 
 import { useTelemetryStore } from "../store/telemetryStore";
@@ -29,8 +30,7 @@ import BatteryPanel from "../components/power/BatteryPanel";
 import FuelCellPanel from "../components/power/FuelCellPanel";
 import DcBusPanel from "../components/power/DcBusPanel";
 import PowerContribution from "../components/power/PowerContribution";
-import BusVoltageGauge from "../components/power/BusVoltageGauge";
-import BusCurrentGauge from "../components/power/BusCurrentGauge";
+import MotorPowerPanel from "../components/power/MotorPowerPanel";
 
 /* ── System ────────────────────────────────────────────── */
 import SystemStatusStrip from "../components/system/SystemStatusStrip";
@@ -50,12 +50,15 @@ export default function Dashboard() {
 
   // Mission elapsed time
   const missionElapsed = useMemo(() => {
+    if (connectionStatus !== "connected") {
+      return "00:00:00";
+    }
     const elapsed = Math.floor((Date.now() - missionStart) / 1000);
     const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
     const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
     const s = String(elapsed % 60).padStart(2, "0");
     return `${h}:${m}:${s}`;
-  }, [missionStart]);
+  }, [missionStart, connectionStatus]);
 
   // Battery bar for StatCard
   const batteryBar = (
@@ -94,7 +97,25 @@ export default function Dashboard() {
   );
 
   return (
-    <div className={styles.dashboard}>
+    <div className={`${styles.dashboard} ${connectionStatus !== "connected" ? styles.noScroll : ""}`}>
+
+      {/* ── Signal Lost Backdrop Overlay ───────────────────── */}
+      {connectionStatus !== "connected" && (
+        <div className={styles.noSignalOverlay}>
+          <div className={styles.noSignalCard}>
+            <div className={styles.noSignalTitle}>
+              <WifiOff size={20} strokeWidth={2} />
+              NO TELEMETRY SIGNAL
+            </div>
+            <div className={styles.noSignalDesc}>
+              Telemetry stream lost or ESP32 ground unit offline. Ground control station is listening for UDP telemetry broadcast on port <strong>8888</strong>.
+            </div>
+            <div className={styles.noSignalBadge}>
+              SEARCHING FOR UDP BROADCAST (:8888)...
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ════════════════ ROW 1 — STAT CARDS ════════════════ */}
       <section className={styles.statRow}>
@@ -161,7 +182,7 @@ export default function Dashboard() {
         </InstrumentCard>
       </section>
 
-      {/* ════════════════ ROW 4 — ATTITUDE + ALTITUDE ════════ */}
+      {/* ════════════════ ROW 4 — ATTITUDE + MOTOR POWER ════════ */}
       <section className={styles.flightRow}>
         <InstrumentCard
           label="ATTITUDE"
@@ -173,27 +194,23 @@ export default function Dashboard() {
         </InstrumentCard>
 
         <InstrumentCard
-          label="ALTITUDE · TIME"
+          label="MOTOR POWER"
           live={liveStatus}
           bracketFrame
           className={styles.altitudeCard}
         >
-          <AltitudeChart />
+          <MotorPowerPanel />
         </InstrumentCard>
       </section>
 
-      {/* ════════════════ ROW 5 — CONTRIBUTION + GAUGES ═════ */}
+      {/* ════════════════ ROW 5 — CONTRIBUTION & ALTITUDE ═════ */}
       <section className={styles.gaugeRow}>
         <InstrumentCard label="POWER SOURCE CONTRIBUTION">
           <PowerContribution />
         </InstrumentCard>
 
-        <InstrumentCard label="BUS VOLTAGE">
-          <BusVoltageGauge />
-        </InstrumentCard>
-
-        <InstrumentCard label="BUS CURRENT">
-          <BusCurrentGauge />
+        <InstrumentCard label="ALTITUDE · TIME">
+          <AltitudeChart />
         </InstrumentCard>
       </section>
 

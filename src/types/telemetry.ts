@@ -48,6 +48,12 @@ export interface DcBusData {
 }
 
 
+/** Motor power output. */
+export interface MotorData {
+  power: number;  // Watts (W)
+}
+
+
 /** Radio signal. */
 export interface SignalData {
   rssi: number;  // dBm (typically −30 … −90)
@@ -64,6 +70,7 @@ export interface Telemetry {
   fuelCell: FuelCellData;
   dcBus: DcBusData;
   signal: SignalData;
+  motor?: MotorData;
 }
 
 
@@ -88,6 +95,8 @@ export interface TelemetryHistory {
 
   dcBusVoltage: TelemetryPoint[];
   dcBusCurrent: TelemetryPoint[];
+
+  motorPower: TelemetryPoint[];
 
   rssi: TelemetryPoint[];
 }

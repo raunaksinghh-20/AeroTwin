@@ -1,0 +1,125 @@
+/* Settings.module.css */
+
+.container {
+  padding: var(--page-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line-rivet);
+}
+
+.subtitle {
+  font: var(--type-caption);
+  color: var(--text-instrument);
+}
+
+.section {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--panel-radius);
+  padding: var(--panel-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sectionTitle {
+  font: var(--type-panel-label);
+  color: var(--text-instrument);
+  letter-spacing: 0.08em;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line-rivet);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.labelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.labelName {
+  font: 500 13px/1.4 var(--font-ui);
+  color: var(--text-canopy);
+}
+
+.labelDesc {
+  font: var(--type-caption);
+  color: var(--text-instrument);
+}
+
+.input {
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--button-radius);
+  color: var(--text-canopy);
+  padding: 6px 12px;
+  font: 400 13px/1 var(--font-data);
+  outline: none;
+  width: 140px;
+}
+
+.input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.themeSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.themeBtn {
+  all: unset;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: var(--button-radius);
+  font: 500 12px/1 var(--font-display);
+  color: var(--text-instrument);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  transition: all var(--transition-fast);
+}
+
+.themeBtnActive {
+  color: var(--bg-hangar);
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.btnDanger {
+  all: unset;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: var(--button-radius);
+  font: 500 12px/1 var(--font-display);
+  color: var(--status-critical);
+  background: rgba(255, 90, 95, 0.15);
+  border: 1px solid rgba(255, 90, 95, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.btnDanger:hover {
+  background: var(--status-critical);
+  color: #fff;
+}

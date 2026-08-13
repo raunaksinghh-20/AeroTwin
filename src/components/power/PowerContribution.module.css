@@ -41,25 +41,63 @@
   color: var(--text-canopy);
 }
 
+.unit {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 1px;
+}
 
-/* ── Horizontal bar ────────────────────────────────────── */
+
+/* ── Horizontal bar container ──────────────────────────── */
+
+.barContainer {
+  position: relative;
+
+  margin-top: 14px;
+  margin-bottom: var(--space-2);
+}
+
+.pointerWrap {
+  position: absolute;
+  top: -11px;
+  transform: translateX(-50%);
+
+  z-index: 3;
+
+  display: flex;
+  justify-content: center;
+
+  transition: left 500ms ease;
+}
+
+.pointerIcon {
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
 
 .bar {
   display: flex;
 
-  height: 10px;
+  height: 12px;
 
-  border-radius: 5px;
+  border-radius: 6px;
 
   overflow: hidden;
 
   background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+
+  position: relative;
 }
 
 .barBattery {
   height: 100%;
 
   background: var(--chart-battery);
+  border-right: 2px solid var(--bg-panel);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
 
   transition: width 500ms ease;
 }
@@ -68,6 +106,7 @@
   height: 100%;
 
   background: var(--chart-fuel-cell);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
 
   transition: width 500ms ease;
 }
@@ -139,6 +178,7 @@
 /* ── Reduced motion ────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+  .pointerWrap,
   .barBattery,
   .barFuelCell {
     transition: none;

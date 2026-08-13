@@ -1,41 +1,52 @@
-/* AEROTWIN SIDEBAR */
+/* AEROTWIN SIDEBAR — TAB PATTERN (FLUSH INSIDE SIDEBAR) */
 
 
-/* SIDEBAR */
+/* SIDEBAR CONTAINER */
 
 .sidebar {
-  width: var(--sidebar-width);
+  position: relative;
+  z-index: var(--z-sidebar);
+
   height: 100vh;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
 
-  padding: var(--space-4) 0;
+  padding: var(--space-4) 8px;
 
   background: var(--bg-panel);
-  border-right: var(--panel-border-width) solid var(--line-rivet);
+  border-right: 1px solid var(--line-rivet);
 
   flex-shrink: 0;
+  box-sizing: border-box;
 
   transition:
-    width var(--transition-fast),
     background var(--transition-theme),
     border-color var(--transition-theme);
+  overflow: hidden;
 }
 
 
-/* AEROTWIN MARK */
+/* TOP BRAND HEADER */
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px;
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .mark {
   width: 32px;
   height: 32px;
+  min-width: 32px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-
-  margin-bottom: 28px;
 
   background: var(--accent-amber);
   color: var(--bg-hangar);
@@ -48,38 +59,52 @@
   letter-spacing: 0.02em;
 
   user-select: none;
+  flex-shrink: 0;
+}
+
+.brandText {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-canopy);
+  white-space: nowrap;
+  user-select: none;
 }
 
 
-/* NAVIGATION */
+/* NAVIGATION CONTAINER */
 
 .navigation {
   width: 100%;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 
   gap: 6px;
+  flex: 1;
 }
 
 
-/* NAVIGATION ITEM */
+/* NAVIGATION ITEM — TAB PATTERN (STRICTLY CONTAINED) */
 
 .navItem {
   position: relative;
 
-  width: var(--nav-item-size);
-  height: var(--nav-item-size);
+  width: 100%;
+  height: var(--nav-item-size, 42px);
 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 10px;
 
   color: var(--text-instrument);
 
-  border-left: 2px solid transparent;
-  border-radius: var(--panel-radius);
+  border-left: 3.5px solid transparent;
+  border-radius: 0;
+  background: transparent;
 
   transition:
     background var(--transition-fast),
@@ -87,6 +112,9 @@
     border-color var(--transition-fast);
 
   cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 
@@ -94,14 +122,12 @@
 
 .navItem svg {
   flex-shrink: 0;
-
-  transition:
-    color var(--transition-fast),
-    transform var(--transition-fast);
+  min-width: 20px;
+  transition: color var(--transition-fast);
 }
 
 
-/* HOVER */
+/* HOVER INACTIVE TAB */
 
 .navItem:hover {
   background: var(--bg-panel-raised);
@@ -109,46 +135,60 @@
 }
 
 
-/* ACTIVE */
+/* ACTIVE TAB — STRICTLY CONTAINED INSIDE SIDEBAR */
 
 .navItem.active {
+  width: 100%;
+  margin-right: 0;
+
   background: var(--bg-panel-raised);
-  color: var(--accent-amber);
+  color: var(--text-canopy);
+  font-weight: 600;
 
   border-left-color: var(--accent-amber);
 }
 
 .navItem.active svg {
+  color: var(--accent-amber);
   stroke-width: 1.8;
 }
 
 
-/* LABEL */
+/* INLINE LABEL & TOOLTIP */
 
 .label {
-  position: absolute;
-
-  left: calc(100% + var(--space-3));
-
+  margin-left: 12px;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 500;
   white-space: nowrap;
+  color: inherit;
+}
 
-  padding: 6px 8px;
+
+/* Tooltip behavior only when collapsed */
+.sidebar:not(.expanded) .labelTooltip {
+  position: absolute;
+  left: calc(100% + var(--space-3));
+  z-index: var(--z-dropdown);
+  margin-left: 0;
+
+  padding: 6px 10px;
 
   background: var(--bg-panel-raised);
   border: 1px solid var(--line-rivet);
   border-radius: var(--button-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
   color: var(--text-canopy);
-
   font-family: var(--font-ui);
   font-size: var(--text-sm);
 
   opacity: 0;
   visibility: hidden;
-
   pointer-events: none;
 
-  transform: translateX(-4px);
+  transform: translateX(-6px);
 
   transition:
     opacity var(--transition-fast),
@@ -156,56 +196,63 @@
     visibility var(--transition-fast);
 }
 
-
-/* SHOW LABEL ON HOVER */
-
-.navItem:hover .label {
+.sidebar:not(.expanded) .navItem:hover .labelTooltip {
   opacity: 1;
   visibility: visible;
-
   transform: translateX(0);
 }
 
 
-/* ALERT BADGE */
+/* TOGGLE BUTTON AT BOTTOM */
 
-.badge {
-  position: absolute;
+.toggleBtn {
+  all: unset;
+  cursor: pointer;
 
-  top: 6px;
-  right: 9px;
+  width: 100%;
+  height: 38px;
 
-  width: var(--live-dot-size);
-  height: var(--live-dot-size);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 10px;
 
-  border-radius: 50%;
+  margin-top: auto;
+  border-radius: var(--panel-radius);
 
-  background: var(--status-critical);
+  color: var(--text-instrument);
+  background: transparent;
+  border: 1px solid transparent;
+
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.toggleBtn svg {
+  flex-shrink: 0;
+  min-width: 20px;
+}
+
+.toggleBtn:hover {
+  background: var(--bg-panel-raised);
+  color: var(--text-canopy);
+  border-color: var(--line-rivet);
+}
+
+.toggleLabel {
+  margin-left: 12px;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 
 /* KEYBOARD FOCUS */
 
-.navItem:focus-visible {
+.navItem:focus-visible,
+.toggleBtn:focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: var(--focus-offset);
-}
-
-
-/* REDUCED MOTION */
-
-@media (prefers-reduced-motion: reduce) {
-  .sidebar,
-  .navItem,
-  .label,
-  .navItem svg {
-    transition: none;
-  }
-}
-
-
-/* FIELD MODE */
-
-:global([data-theme="field"]) .navItem:hover {
-  background: var(--bg-panel-raised);
 }

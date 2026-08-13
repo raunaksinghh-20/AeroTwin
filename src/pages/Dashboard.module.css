@@ -2,6 +2,7 @@
 
 
 .dashboard {
+  position: relative;
   padding: var(--page-padding);
 
   display: flex;
@@ -14,6 +15,72 @@
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
+}
+
+.noScroll {
+  overflow: hidden !important;
+  max-height: calc(100vh - 48px) !important;
+}
+
+
+/* ── No-Signal Overlay ─────────────────────────────────── */
+
+.noSignalOverlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  min-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg-hangar) 85%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  pointer-events: auto;
+  padding: 20px;
+}
+
+.noSignalCard {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--panel-radius);
+  padding: 28px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  max-width: 460px;
+  position: sticky;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.noSignalTitle {
+  font: 600 16px/1.2 var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--status-critical);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noSignalDesc {
+  font: var(--type-body);
+  color: var(--text-instrument);
+  line-height: 1.5;
+}
+
+.noSignalBadge {
+  font: 600 11px/1 var(--font-display);
+  color: var(--accent-amber);
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  padding: 6px 12px;
+  border-radius: var(--button-radius);
+  letter-spacing: 0.05em;
 }
 
 
@@ -82,7 +149,7 @@
 
 .gaugeRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: var(--grid-gutter);
 }
 
@@ -163,6 +230,10 @@
 
   .gaugeRow {
     grid-template-columns: 1fr;
+  }
+
+  .noSignalOverlay {
+    left: 0;
   }
 }
 

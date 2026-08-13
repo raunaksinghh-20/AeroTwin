@@ -52,6 +52,111 @@ export const BUS_VOLTAGE_RANGE = { min: 40, max: 60 } as const;
 export const BUS_CURRENT_RANGE = { min: 0, max: 60 } as const;
 
 
+/**
+ * Evaluates a complete telemetry snapshot and generates an array of active alerts.
+ */
+export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetry): import("../types/telemetry").Alert[] {
+  const alerts: import("../types/telemetry").Alert[] = [];
+  const now = t.timestamp || Date.now();
+
+  // Battery checks
+  if (t.battery.percentage <= BATTERY_THRESHOLDS.percentage.critical) {
+    alerts.push({
+      id: `bat-pct-crit-${now}`,
+      severity: "critical",
+      source: "Battery",
+      message: `CRITICAL: Battery level at ${t.battery.percentage.toFixed(1)}% (Threshold: ${BATTERY_THRESHOLDS.percentage.critical}%)`,
+      timestamp: now,
+    });
+  } else if (t.battery.percentage <= BATTERY_THRESHOLDS.percentage.caution) {
+    alerts.push({
+      id: `bat-pct-caut-${now}`,
+      severity: "caution",
+      source: "Battery",
+      message: `CAUTION: Low battery level at ${t.battery.percentage.toFixed(1)}%`,
+      timestamp: now,
+    });
+  }
+
+  if (t.battery.temperature >= BATTERY_THRESHOLDS.temperature.critical) {
+    alerts.push({
+      id: `bat-temp-crit-${now}`,
+      severity: "critical",
+      source: "Battery",
+      message: `CRITICAL: Battery temperature high (${t.battery.temperature.toFixed(1)}°C)`,
+      timestamp: now,
+    });
+  } else if (t.battery.temperature >= BATTERY_THRESHOLDS.temperature.caution) {
+    alerts.push({
+      id: `bat-temp-caut-${now}`,
+      severity: "caution",
+      source: "Battery",
+      message: `CAUTION: Battery temp elevated (${t.battery.temperature.toFixed(1)}°C)`,
+      timestamp: now,
+    });
+  }
+
+  // Fuel Cell checks
+  if (t.fuelCell.temperature >= FUEL_CELL_THRESHOLDS.temperature.critical) {
+    alerts.push({
+      id: `fc-temp-crit-${now}`,
+      severity: "critical",
+      source: "Fuel Cell",
+      message: `CRITICAL: Fuel Cell temperature critical (${t.fuelCell.temperature.toFixed(1)}°C)`,
+      timestamp: now,
+    });
+  } else if (t.fuelCell.temperature >= FUEL_CELL_THRESHOLDS.temperature.caution) {
+    alerts.push({
+      id: `fc-temp-caut-${now}`,
+      severity: "caution",
+      source: "Fuel Cell",
+      message: `CAUTION: Fuel Cell temperature elevated (${t.fuelCell.temperature.toFixed(1)}°C)`,
+      timestamp: now,
+    });
+  }
+
+  // Signal / Comms checks
+  if (t.signal.rssi <= SIGNAL_THRESHOLDS.rssi.critical) {
+    alerts.push({
+      id: `rssi-crit-${now}`,
+      severity: "critical",
+      source: "Radio / Comms",
+      message: `CRITICAL: Radio signal extremely weak (${t.signal.rssi} dBm)`,
+      timestamp: now,
+    });
+  } else if (t.signal.rssi <= SIGNAL_THRESHOLDS.rssi.caution) {
+    alerts.push({
+      id: `rssi-caut-${now}`,
+      severity: "caution",
+      source: "Radio / Comms",
+      message: `CAUTION: Radio signal degradation (${t.signal.rssi} dBm)`,
+      timestamp: now,
+    });
+  }
+
+  // GPS checks
+  if (t.gps.satellites <= GPS_THRESHOLDS.satellites.critical) {
+    alerts.push({
+      id: `gps-crit-${now}`,
+      severity: "critical",
+      source: "GPS",
+      message: `CRITICAL: GPS satellite lock lost (${t.gps.satellites} sat)`,
+      timestamp: now,
+    });
+  } else if (t.gps.satellites <= GPS_THRESHOLDS.satellites.caution) {
+    alerts.push({
+      id: `gps-caut-${now}`,
+      severity: "caution",
+      source: "GPS",
+      message: `CAUTION: Low GPS satellite count (${t.gps.satellites} sat)`,
+      timestamp: now,
+    });
+  }
+
+  return alerts;
+}
+
+
 /* ── Helpers ───────────────────────────────────────────── */
 
 /**
@@ -81,3 +186,5 @@ export function getSeverityAbove(
   if (value >= caution) return "caution";
   return "nominal";
 }
+
+

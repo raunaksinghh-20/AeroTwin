@@ -7,20 +7,20 @@
 import { useEffect, useState } from "react";
 
 
-function formatUTC(): string {
+function formatLocalTime(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}Z`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 /**
- * Returns a live UTC clock string, ticking every second.
+ * Returns a live local clock string (HH:MM:SS), ticking every second.
  */
 export function useMissionClock(): string {
-  const [time, setTime] = useState(formatUTC);
+  const [time, setTime] = useState(formatLocalTime);
 
   useEffect(() => {
-    const id = setInterval(() => setTime(formatUTC()), 1000);
+    const id = setInterval(() => setTime(formatLocalTime()), 1000);
     return () => clearInterval(id);
   }, []);
 

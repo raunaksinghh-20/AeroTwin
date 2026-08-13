@@ -1,0 +1,103 @@
+/* ComponentStatus.module.css */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--panel-padding);
+  background: var(--bg-panel);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--panel-radius);
+  height: 100%;
+}
+
+.header {
+  font: var(--type-panel-label);
+  color: var(--text-instrument);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-rivet);
+}
+
+
+/* ── Rows ──────────────────────────────────────────────── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--button-radius);
+  background: var(--bg-panel-raised);
+  transition: background var(--transition-fast);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--text-instrument);
+}
+
+.icon svg {
+  color: inherit;
+}
+
+.name {
+  flex: 1;
+  font: 500 12px/1.2 var(--font-ui);
+  color: var(--text-canopy);
+  white-space: nowrap;
+}
+
+.detail {
+  font: 400 11px/1 var(--font-data);
+  color: var(--text-instrument);
+  white-space: nowrap;
+}
+
+
+/* ── Status badge ──────────────────────────────────────── */
+
+.badge {
+  font: 600 9px/1 var(--font-display);
+  letter-spacing: 0.1em;
+  padding: 3px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.badge.ok {
+  background: rgba(62, 207, 142, 0.15);
+  color: var(--status-nominal);
+}
+
+.badge.caution {
+  background: rgba(245, 166, 35, 0.15);
+  color: var(--status-caution);
+}
+
+.badge.critical {
+  background: rgba(255, 90, 95, 0.15);
+  color: var(--status-critical);
+}
+
+.badge.offline {
+  background: rgba(124, 138, 150, 0.1);
+  color: var(--text-instrument);
+}
+
+
+/* Row tinting per status */
+
+.row.ok .icon       { color: var(--status-nominal); }
+.row.caution .icon  { color: var(--status-caution); }
+.row.critical .icon { color: var(--status-critical); }
+.row.offline .icon  { color: var(--text-instrument); opacity: 0.5; }
