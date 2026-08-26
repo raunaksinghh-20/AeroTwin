@@ -5,13 +5,15 @@
    and orbit controls.  Follows app theme (dark / light).
    ──────────────────────────────────────────────────────── */
 
-import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useRef, Suspense } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 
 import { useTelemetryStore } from "../../store/telemetryStore";
+import { useSettingsStore } from "../../store/settingsStore";
+import { useTwinViewStore } from "../../store/twinViewStore";
 import { useResolvedTheme, type ResolvedTheme } from "../../hooks/useResolvedTheme";
 import DroneModel from "./DroneModel";
 import RadarGrid from "./RadarGrid";
@@ -79,6 +81,7 @@ export const CAMERA_PRESETS: Record<string, CameraPreset> = {
   bottom:      { position: [0, -10, 0.01], target: [0, 0, 0] },
   front:       { position: [0, 2, -8],    target: [0, 0, 0] },
   side:        { position: [8, 2, 0],     target: [0, 0, 0] },
+  rear:        { position: [0, 3, 8],     target: [0, 0, 0] },
 };
 
 
@@ -118,6 +121,19 @@ const InnerScene = forwardRef<TwinViewportHandle, InnerSceneProps>(
     const connected = useTelemetryStore((s) => s.connectionStatus === "connected");
     const batteryPercent = useTelemetryStore((s) => s.current.battery.percentage);
     const h2TankPercent = useTelemetryStore((s) => s.current.fuelCell.tankPercentage);
+
+    const showRadarGrid = useSettingsStore((s) => s.showRadarGrid);
+    const autoRotateDrone = useSettingsStore((s) => s.autoRotateDrone);
+    const rotationSpeed = useSettingsStore((s) => s.rotationSpeed);
+    const lightingIntensity = useSettingsStore((s) => s.lightingIntensity);
+
+    // Twin view store
+    const viewMode = useTwinViewStore((s) => s.viewMode);
+    const shellOpacity = useTwinViewStore((s) => s.shellOpacity);
+    const explodedFactor = useTwinViewStore((s) => s.explodedFactor);
+    const showLabels = useTwinViewStore((s) => s.showLabels);
+    const highlightedComponent = useTwinViewStore((s) => s.highlightedComponent);
+    const faultOverrides = useTwinViewStore((s) => s.faultOverrides);
 
     const t = SCENE_THEMES[resolvedTheme];
 
@@ -161,54 +177,85 @@ const InnerScene = forwardRef<TwinViewportHandle, InnerSceneProps>(
         {/* Dynamically sync background + fog */}
         <BackgroundSync color={t.bg} />
 
-        {/* Lighting */}
-        <ambientLight intensity={t.ambientIntensity} />
+        {/* Lighting — enhanced for translucent materials */}
+        <ambientLight intensity={t.ambientIntensity * lightingIntensity} />
         <directionalLight
           position={[5, 8, 5]}
-          intensity={t.mainLightIntensity}
+          intensity={t.mainLightIntensity * lightingIntensity}
           castShadow={false}
           color={t.mainLightColor}
         />
         <directionalLight
           position={[-3, 4, -5]}
-          intensity={t.fillLightIntensity}
+          intensity={t.fillLightIntensity * lightingIntensity}
           color={t.fillLightColor}
         />
         {/* Bottom Fill Light for Underbelly Inspection */}
         <directionalLight
           position={[0, -8, 0]}
-          intensity={t.fillLightIntensity * 1.2}
+          intensity={t.fillLightIntensity * 1.2 * lightingIntensity}
           color={t.mainLightColor}
+        />
+        {/* Rear fill for tail section */}
+        <directionalLight
+          position={[0, 3, -8]}
+          intensity={t.fillLightIntensity * 0.8 * lightingIntensity}
+          color={t.fillLightColor}
+        />
+        {/* Side rim lights for wing definition */}
+        <pointLight
+          position={[6, 2, 0]}
+          intensity={0.4 * lightingIntensity}
+          color={t.fillLightColor}
+          distance={15}
+        />
+        <pointLight
+          position={[-6, 2, 0]}
+          intensity={0.4 * lightingIntensity}
+          color={t.fillLightColor}
+          distance={15}
         />
 
         {/* Radar grid — themed */}
-        <RadarGrid
-          rings={8}
-          spokes={12}
-          radius={12}
-          ringColor={t.gridRingColor}
-          ringOpacity={t.gridRingOpacity}
-          axisColor={t.gridAxisColor}
-          axisOpacity={t.gridAxisOpacity}
-          centerColor={t.gridCenterColor}
-        />
+        {showRadarGrid && (
+          <RadarGrid
+            rings={8}
+            spokes={12}
+            radius={12}
+            ringColor={t.gridRingColor}
+            ringOpacity={t.gridRingOpacity}
+            axisColor={t.gridAxisColor}
+            axisOpacity={t.gridAxisOpacity}
+            centerColor={t.gridCenterColor}
+          />
+        )}
 
-        {/* Drone model — driven by telemetry */}
-        <DroneModel
-          roll={roll}
-          pitch={pitch}
-          yaw={yaw}
-          connected={connected}
-          theme={resolvedTheme}
-          batteryPercent={batteryPercent}
-          h2TankPercent={h2TankPercent}
-        />
+        {/* Drone model — driven by telemetry + view mode */}
+        <Suspense fallback={null}>
+          <DroneModel
+            roll={roll}
+            pitch={pitch}
+            yaw={yaw}
+            connected={connected}
+            theme={resolvedTheme}
+            batteryPercent={batteryPercent}
+            h2TankPercent={h2TankPercent}
+            viewMode={viewMode}
+            shellOpacity={shellOpacity}
+            explodedFactor={explodedFactor}
+            showLabels={showLabels}
+            highlightedComponent={highlightedComponent}
+            faultOverrides={faultOverrides}
+          />
+        </Suspense>
 
         {/* Orbit controls — unlocked polar angle for bottom view */}
         <OrbitControls
           ref={controlsRef}
           enableDamping
           dampingFactor={0.08}
+          autoRotate={autoRotateDrone}
+          autoRotateSpeed={rotationSpeed * 2.0}
           minDistance={3}
           maxDistance={25}
           maxPolarAngle={Math.PI * 0.98}
@@ -225,6 +272,7 @@ const InnerScene = forwardRef<TwinViewportHandle, InnerSceneProps>(
 const TwinViewport = forwardRef<TwinViewportHandle>(function TwinViewport(_props, ref) {
   const innerRef = useRef<TwinViewportHandle>(null);
   const resolvedTheme = useResolvedTheme();
+  const cameraFov = useSettingsStore((s) => s.cameraFov);
   const t = SCENE_THEMES[resolvedTheme];
 
   useImperativeHandle(ref, () => ({
@@ -236,7 +284,7 @@ const TwinViewport = forwardRef<TwinViewportHandle>(function TwinViewport(_props
     <Canvas
       camera={{
         position: [6, 4, 6],
-        fov: 50,
+        fov: cameraFov,
         near: 0.1,
         far: 100,
       }}

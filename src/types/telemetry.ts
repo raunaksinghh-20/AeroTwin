@@ -1,9 +1,3 @@
-/* ────────────────────────────────────────────────────────
-   AEROTWIN — TELEMETRY TYPES
-   Single normalised domain type for all telemetry data.
-   ──────────────────────────────────────────────────────── */
-
-
 /** Flight dynamics. */
 export interface FlightData {
   altitude: number;   // metres
@@ -11,14 +5,6 @@ export interface FlightData {
   roll: number;       // degrees
   pitch: number;      // degrees
   yaw: number;        // degrees (heading)
-}
-
-
-/** GPS fix. */
-export interface GpsData {
-  latitude: number;
-  longitude: number;
-  satellites: number;
 }
 
 
@@ -48,15 +34,50 @@ export interface DcBusData {
 }
 
 
-/** Motor power output. */
+/** Motor power output (aggregate / backward-compatible). */
 export interface MotorData {
   power: number;  // Watts (W)
 }
 
 
+/** Per-motor telemetry for individual motor monitoring. */
+export interface MotorTelemetry {
+  id: number;           // 1–5
+  label: string;        // e.g. "MOTOR 1", "REAR THRUST MOTOR"
+  rpm: number;          // revolutions per minute
+  current: number;      // A
+  voltage: number;      // V
+  temperature: number;  // °C
+  power: number;        // W
+  status: "ok" | "warning" | "fault" | "offline";
+}
+
+
+/** Individual pressure sensor data. */
+export interface PressureSensorData {
+  pressure: number;     // bar
+  status: "ok" | "warning" | "fault" | "offline";
+}
+
+
+/** Complete hydrogen system telemetry. */
+export interface HydrogenSystemData {
+  tankPressure: number;           // bar (raw tank output)
+  sensor1: PressureSensorData;    // P1: at cylinder outlet
+  regulatorOutput: number;        // bar (regulated pressure)
+  sensor2: PressureSensorData;    // P2: at fuel cell inlet
+  flowRate: number;               // L/min
+  consumption: number;            // g/h
+}
+
+
+/** Component fault status for digital twin visualization. */
+export type ComponentFaultStatus = "normal" | "warning" | "fault" | "disconnected" | "nodata";
+
+
 /** Radio signal. */
 export interface SignalData {
-  rssi: number;  // dBm (typically −30 … −90)
+  rssi: number;  // dBm
 }
 
 
@@ -65,12 +86,17 @@ export interface Telemetry {
   timestamp: number;  // Date.now()
 
   flight: FlightData;
-  gps: GpsData;
   battery: BatteryData;
   fuelCell: FuelCellData;
   dcBus: DcBusData;
   signal: SignalData;
-  motor?: MotorData;
+  motor: MotorData;
+
+  /** Per-motor telemetry (5 motors: 4 lift + 1 rear thrust). */
+  motors: MotorTelemetry[];
+
+  /** Hydrogen system with dual pressure sensors. */
+  hydrogenSystem: HydrogenSystemData;
 }
 
 
@@ -115,6 +141,6 @@ export interface Alert {
   id: string;
   severity: AlertSeverity;
   message: string;
-  source: string;       // e.g. "Battery", "Fuel Cell", "GPS"
+  source: string;       // e.g. "Battery", "Fuel Cell", "Radio"
   timestamp: number;
 }

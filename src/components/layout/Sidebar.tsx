@@ -6,7 +6,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
-  AlertTriangle,
   Box,
   Clock3,
   Gauge,
@@ -44,11 +43,6 @@ const navigationItems: NavigationItem[] = [
     label: "Flight Log",
     path: "/flight-log",
     icon: Clock3,
-  },
-  {
-    label: "Alerts",
-    path: "/alerts",
-    icon: AlertTriangle,
   },
   {
     label: "Settings",

@@ -1,7 +1,7 @@
 /* ────────────────────────────────────────────────────────
    AEROTWIN — SYSTEM STATUS STRIP
    Row of status items for Battery, Fuel Cell, DC Bus,
-   GPS, Telemetry link.
+   and Telemetry link.
    ──────────────────────────────────────────────────────── */
 
 import { useTelemetryStore } from "../../store/telemetryStore";

@@ -10,6 +10,7 @@ import TwinViewport, { type TwinViewportHandle } from "../components/twin/TwinVi
 import TwinTelemetryOverlay from "../components/twin/TwinTelemetryOverlay";
 import ViewControls from "../components/twin/ViewControls";
 import ComponentStatus from "../components/twin/ComponentStatus";
+import ComponentInfoCard from "../components/twin/ComponentInfoCard";
 import AttitudeRing from "../components/flight/AttitudeRing";
 
 import { useTelemetryStore } from "../store/telemetryStore";
@@ -30,6 +31,9 @@ export default function DigitalTwin() {
 
         {/* HUD overlays (orientation + flight data + live badge) */}
         <TwinTelemetryOverlay />
+
+        {/* Floating Component Info / Inspection Card */}
+        <ComponentInfoCard />
 
         {/* Camera preset buttons */}
         <div className={styles.viewControlsWrap}>

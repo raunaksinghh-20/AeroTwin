@@ -1,79 +1,108 @@
 /* ────────────────────────────────────────────────────────
    AEROTWIN — STATUS THRESHOLDS
    Defines nominal / caution / critical boundaries for
-   each telemetry subsystem.
+   each telemetry subsystem. Dynamically backed by settingsStore.
    ──────────────────────────────────────────────────────── */
 
 import type { AlertSeverity } from "../types/telemetry";
+import { useSettingsStore } from "../store/settingsStore";
 
 
-/* ── Battery ───────────────────────────────────────────── */
+/* ── Dynamic Threshold Getters ─────────────────────────── */
 
 export const BATTERY_THRESHOLDS = {
-  percentage: { caution: 30, critical: 15 },
-  voltage:    { caution: 11.5, critical: 10.5 },
-  temperature:{ caution: 55, critical: 65 },
-} as const;
-
-
-/* ── Fuel Cell ─────────────────────────────────────────── */
+  get percentage() {
+    let s;
+    try {
+      s = useSettingsStore.getState();
+    } catch {
+      s = null;
+    }
+    return {
+      caution: s?.batteryCautionPercent ?? 30,
+      critical: s?.batteryCriticalPercent ?? 15,
+    };
+  },
+  voltage: { caution: 11.5, critical: 10.5 },
+  temperature: { caution: 55, critical: 65 },
+};
 
 export const FUEL_CELL_THRESHOLDS = {
-  voltage:    { caution: 12.0, critical: 10.0 },
-  temperature:{ caution: 65, critical: 75 },
-} as const;
-
-
-/* ── DC Bus ────────────────────────────────────────────── */
+  voltage: { caution: 12.0, critical: 10.0 },
+  get temperature() {
+    let s;
+    try {
+      s = useSettingsStore.getState();
+    } catch {
+      s = null;
+    }
+    const crit = s?.fuelCellMaxTemp ?? 75;
+    return {
+      caution: Math.max(40, crit - 10),
+      critical: crit,
+    };
+  },
+};
 
 export const DC_BUS_THRESHOLDS = {
   voltage: { low: 44.0, high: 58.0 },
   current: { caution: 45, critical: 55 },
 } as const;
 
-
-/* ── Signal ────────────────────────────────────────────── */
-
 export const SIGNAL_THRESHOLDS = {
-  rssi: { caution: -70, critical: -85 },
-} as const;
-
-
-/* ── GPS ───────────────────────────────────────────────── */
-
-export const GPS_THRESHOLDS = {
-  satellites: { caution: 6, critical: 4 },
-} as const;
-
-
-/* ── Gauge ranges ──────────────────────────────────────── */
+  get rssi() {
+    let s;
+    try {
+      s = useSettingsStore.getState();
+    } catch {
+      s = null;
+    }
+    const caution = s?.signalRssiThreshold ?? -75;
+    return {
+      caution,
+      critical: Math.min(-85, caution - 10),
+    };
+  },
+};
 
 export const BUS_VOLTAGE_RANGE = { min: 40, max: 60 } as const;
 export const BUS_CURRENT_RANGE = { min: 0, max: 60 } as const;
 
 
 /**
- * Evaluates a complete telemetry snapshot and generates an array of active alerts.
+ * Evaluates a complete telemetry snapshot and generates an array of active alerts
+ * using user-configured settingsStore safety thresholds.
  */
-export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetry): import("../types/telemetry").Alert[] {
+export function evaluateTelemetryAlerts(
+  t: import("../types/telemetry").Telemetry
+): import("../types/telemetry").Alert[] {
   const alerts: import("../types/telemetry").Alert[] = [];
   const now = t.timestamp || Date.now();
 
-  // Battery checks
-  if (t.battery.percentage <= BATTERY_THRESHOLDS.percentage.critical) {
+  const batCaution = BATTERY_THRESHOLDS.percentage.caution;
+  const batCritical = BATTERY_THRESHOLDS.percentage.critical;
+
+  const fcCaution = FUEL_CELL_THRESHOLDS.temperature.caution;
+  const fcCritical = FUEL_CELL_THRESHOLDS.temperature.critical;
+
+  const rssiCaution = SIGNAL_THRESHOLDS.rssi.caution;
+  const rssiCritical = SIGNAL_THRESHOLDS.rssi.critical;
+
+  // Battery percentage checks
+  if (t.battery.percentage <= batCritical) {
     alerts.push({
       id: `bat-pct-crit-${now}`,
       severity: "critical",
       source: "Battery",
-      message: `CRITICAL: Battery level at ${t.battery.percentage.toFixed(1)}% (Threshold: ${BATTERY_THRESHOLDS.percentage.critical}%)`,
+      message: `CRITICAL: Battery level at ${t.battery.percentage.toFixed(1)}% (Limit: ${batCritical}%)`,
       timestamp: now,
     });
-  } else if (t.battery.percentage <= BATTERY_THRESHOLDS.percentage.caution) {
+  } else if (t.battery.percentage <= batCaution) {
     alerts.push({
       id: `bat-pct-caut-${now}`,
       severity: "caution",
       source: "Battery",
-      message: `CAUTION: Low battery level at ${t.battery.percentage.toFixed(1)}%`,
+      message: `CAUTION: Low battery level at ${t.battery.percentage.toFixed(1)}% (Limit: ${batCaution}%)`,
       timestamp: now,
     });
   }
@@ -97,15 +126,15 @@ export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetr
   }
 
   // Fuel Cell checks
-  if (t.fuelCell.temperature >= FUEL_CELL_THRESHOLDS.temperature.critical) {
+  if (t.fuelCell.temperature >= fcCritical) {
     alerts.push({
       id: `fc-temp-crit-${now}`,
       severity: "critical",
       source: "Fuel Cell",
-      message: `CRITICAL: Fuel Cell temperature critical (${t.fuelCell.temperature.toFixed(1)}°C)`,
+      message: `CRITICAL: Fuel Cell temperature critical (${t.fuelCell.temperature.toFixed(1)}°C, Limit: ${fcCritical}°C)`,
       timestamp: now,
     });
-  } else if (t.fuelCell.temperature >= FUEL_CELL_THRESHOLDS.temperature.caution) {
+  } else if (t.fuelCell.temperature >= fcCaution) {
     alerts.push({
       id: `fc-temp-caut-${now}`,
       severity: "caution",
@@ -116,7 +145,7 @@ export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetr
   }
 
   // Signal / Comms checks
-  if (t.signal.rssi <= SIGNAL_THRESHOLDS.rssi.critical) {
+  if (t.signal.rssi <= rssiCritical) {
     alerts.push({
       id: `rssi-crit-${now}`,
       severity: "critical",
@@ -124,40 +153,18 @@ export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetr
       message: `CRITICAL: Radio signal extremely weak (${t.signal.rssi} dBm)`,
       timestamp: now,
     });
-  } else if (t.signal.rssi <= SIGNAL_THRESHOLDS.rssi.caution) {
+  } else if (t.signal.rssi <= rssiCaution) {
     alerts.push({
       id: `rssi-caut-${now}`,
       severity: "caution",
       source: "Radio / Comms",
-      message: `CAUTION: Radio signal degradation (${t.signal.rssi} dBm)`,
-      timestamp: now,
-    });
-  }
-
-  // GPS checks
-  if (t.gps.satellites <= GPS_THRESHOLDS.satellites.critical) {
-    alerts.push({
-      id: `gps-crit-${now}`,
-      severity: "critical",
-      source: "GPS",
-      message: `CRITICAL: GPS satellite lock lost (${t.gps.satellites} sat)`,
-      timestamp: now,
-    });
-  } else if (t.gps.satellites <= GPS_THRESHOLDS.satellites.caution) {
-    alerts.push({
-      id: `gps-caut-${now}`,
-      severity: "caution",
-      source: "GPS",
-      message: `CAUTION: Low GPS satellite count (${t.gps.satellites} sat)`,
+      message: `CAUTION: Radio signal degradation (${t.signal.rssi} dBm, Limit: ${rssiCaution} dBm)`,
       timestamp: now,
     });
   }
 
   return alerts;
 }
-
-
-/* ── Helpers ───────────────────────────────────────────── */
 
 /**
  * Returns severity based on a value and thresholds where
@@ -166,7 +173,7 @@ export function evaluateTelemetryAlerts(t: import("../types/telemetry").Telemetr
 export function getSeverityBelow(
   value: number,
   caution: number,
-  critical: number,
+  critical: number
 ): AlertSeverity {
   if (value <= critical) return "critical";
   if (value <= caution) return "caution";
@@ -180,11 +187,9 @@ export function getSeverityBelow(
 export function getSeverityAbove(
   value: number,
   caution: number,
-  critical: number,
+  critical: number
 ): AlertSeverity {
   if (value >= critical) return "critical";
   if (value >= caution) return "caution";
   return "nominal";
 }
-
-

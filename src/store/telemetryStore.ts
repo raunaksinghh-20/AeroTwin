@@ -6,21 +6,35 @@
    ──────────────────────────────────────────────────────── */
 
 import { create } from "zustand";
-
 import type {
   Alert,
   ConnectionStatus,
+  MotorTelemetry,
   Telemetry,
   TelemetryHistory,
   TelemetryPoint,
 } from "../types/telemetry";
 import { evaluateTelemetryAlerts } from "../lib/thresholds";
 
-
 /* ── Constants ─────────────────────────────────────────── */
 
 /** Maximum data points kept per history series (~60 s at 2 Hz). */
 const MAX_HISTORY = 120;
+
+
+/* ── Default per-motor telemetry ───────────────────────── */
+
+function defaultMotor(id: number, label: string): MotorTelemetry {
+  return { id, label, rpm: 0, current: 0, voltage: 0, temperature: 0, power: 0, status: "offline" };
+}
+
+const DEFAULT_MOTORS: MotorTelemetry[] = [
+  defaultMotor(1, "MOTOR 1"),
+  defaultMotor(2, "MOTOR 2"),
+  defaultMotor(3, "MOTOR 3"),
+  defaultMotor(4, "MOTOR 4"),
+  defaultMotor(5, "REAR THRUST MOTOR"),
+];
 
 
 /* ── Default telemetry snapshot ────────────────────────── */
@@ -29,12 +43,22 @@ const DEFAULT_TELEMETRY: Telemetry = {
   timestamp: Date.now(),
 
   flight: { altitude: 0, speed: 0, roll: 0, pitch: 0, yaw: 0 },
-  gps:    { latitude: 0, longitude: 0, satellites: 0 },
   battery:  { voltage: 0, current: 0, percentage: 0, temperature: 0 },
   fuelCell: { voltage: 0, current: 0, temperature: 0, tankPercentage: 0, pressure: 0 },
   dcBus:    { voltage: 0, current: 0 },
   signal:   { rssi: 0 },
   motor:    { power: 0 },
+
+  motors: DEFAULT_MOTORS,
+
+  hydrogenSystem: {
+    tankPressure: 0,
+    sensor1: { pressure: 0, status: "offline" },
+    regulatorOutput: 0,
+    sensor2: { pressure: 0, status: "offline" },
+    flowRate: 0,
+    consumption: 0,
+  },
 };
 
 function emptyHistory(): TelemetryHistory {

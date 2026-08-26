@@ -1,18 +1,10 @@
-/* ────────────────────────────────────────────────────────
-   AEROTWIN — ROUTES
-   ──────────────────────────────────────────────────────── */
-
 import { Navigate, type RouteObject } from "react-router-dom";
-
 import AppShell from "./components/layout/AppShell";
-
-import Dashboard   from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import DigitalTwin from "./pages/DigitalTwin";
-import Telemetry   from "./pages/Telemetry";
-import FlightLog   from "./pages/FlightLog";
-import Alerts      from "./pages/Alerts";
-import Settings    from "./pages/Settings";
-
+import Telemetry from "./pages/Telemetry";
+import FlightLog from "./pages/FlightLog";
+import Settings from "./pages/Settings";
 
 export const routes: RouteObject[] = [
   {
@@ -38,10 +30,6 @@ export const routes: RouteObject[] = [
       {
         path: "flight-log",
         element: <FlightLog />,
-      },
-      {
-        path: "alerts",
-        element: <Alerts />,
       },
       {
         path: "settings",

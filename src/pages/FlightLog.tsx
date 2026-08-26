@@ -1,11 +1,11 @@
 /* ────────────────────────────────────────────────────────
    AEROTWIN — FLIGHT LOG PAGE
-   Flight recording, GPS track preview, mission stats,
+   Flight recording, mission stats,
    and Excel (.xlsx) / CSV / JSON log exports.
    ──────────────────────────────────────────────────────── */
 
 import { useEffect, useMemo, useState } from "react";
-import { Clock3, Download, FileSpreadsheet, MapPin, RefreshCw, X } from "lucide-react";
+import { Clock3, Download, FileSpreadsheet, RefreshCw, X } from "lucide-react";
 import * as XLSX from "xlsx";
 
 import { useTelemetryStore } from "../store/telemetryStore";
@@ -63,13 +63,6 @@ export default function FlightLog() {
         subsystem: "Telemetry Link",
         message: "UDP Receiver Socket Bound on Port 8888",
         value: "0.0.0.0:8888",
-      },
-      {
-        timestamp: new Date(missionStartTime + 2000).toLocaleTimeString(),
-        level: "INFO",
-        subsystem: "GPS",
-        message: `GPS Satellite Lock Established (${current.gps.satellites} Satellites)`,
-        value: `${current.gps.satellites} SAT`,
       },
     ];
 
@@ -304,37 +297,9 @@ export default function FlightLog() {
         </div>
       </div>
 
-      {/* ── Main Section: GPS Path & Event Log ───────────── */}
+      {/* ── Main Section: Event & Warning Logs ───────────── */}
       <div className={styles.mainGrid}>
-        {/* Left: GPS Path Visualizer */}
-        <div className={styles.panel}>
-          <div className={styles.panelTitle}>
-            <span>GPS RADAR TRACK</span>
-            <span style={{ font: "var(--type-caption)", color: "var(--text-instrument)" }}>
-              {current.gps.latitude.toFixed(6)}, {current.gps.longitude.toFixed(6)} ({current.gps.satellites} SAT)
-            </span>
-          </div>
-
-          <div className={styles.mapBox}>
-            <svg width="100%" height="100%" viewBox="-100 -100 200 200">
-              {/* Radar Rings */}
-              <circle cx="0" cy="0" r="30" fill="none" stroke="var(--line-rivet)" strokeWidth="1" />
-              <circle cx="0" cy="0" r="60" fill="none" stroke="var(--line-rivet)" strokeWidth="1" />
-              <circle cx="0" cy="0" r="90" fill="none" stroke="var(--line-rivet)" strokeWidth="1" />
-              <line x1="-100" y1="0" x2="100" y2="0" stroke="var(--line-rivet)" strokeWidth="1" />
-              <line x1="0" y1="-100" x2="0" y2="100" stroke="var(--line-rivet)" strokeWidth="1" />
-
-              {/* Dynamic Drone Position Marker */}
-              <circle cx="15" cy="-25" r="5" fill="var(--accent-cyan)" />
-              <circle cx="15" cy="-25" r="12" fill="none" stroke="var(--accent-cyan)" strokeWidth="1" opacity="0.6" />
-            </svg>
-            <div style={{ position: "absolute", bottom: 8, left: 12, font: "var(--type-caption)", color: "var(--text-instrument)", display: "flex", alignItems: "center", gap: 4 }}>
-              <MapPin size={12} color="var(--accent-cyan)" /> GPS RADAR LOCK ACTIVE
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Flight Event History Table */}
+        {/* Flight Event History Table */}
         <div className={styles.panel}>
           <div className={styles.panelTitle}>FLIGHT EVENT & WARNING LOGS</div>
           <table className={styles.table}>

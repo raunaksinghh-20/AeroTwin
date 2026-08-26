@@ -1,7 +1,7 @@
 /* ────────────────────────────────────────────────────────
    AEROTWIN — STAT CARD
    Compact large-number instrument readout.
-   Used for ALT, SPD, BATT%, GPS SAT, FLIGHT TIME, etc.
+   Used for ALT, SPD, BATT%, FLIGHT TIME, etc.
    ──────────────────────────────────────────────────────── */
 
 import { memo, type ReactNode } from "react";

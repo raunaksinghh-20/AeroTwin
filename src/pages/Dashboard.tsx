@@ -220,7 +220,7 @@ export default function Dashboard() {
           <SystemStatusStrip />
         </InstrumentCard>
 
-        <InstrumentCard label="ALERTS" labelRight={<span className={styles.viewAll}>View all</span>}>
+        <InstrumentCard label="ALERTS">
           <AlertsSummary />
         </InstrumentCard>
       </section>

@@ -10,7 +10,6 @@ const pageTitles: Record<string, string> = {
   "/digital-twin": "DIGITAL TWIN",
   "/telemetry": "TELEMETRY",
   "/flight-log": "FLIGHT LOG",
-  "/alerts": "ALERTS",
   "/settings": "SETTINGS",
 };
 

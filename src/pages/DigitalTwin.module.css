@@ -4,7 +4,7 @@
 
 .page {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: 1fr 320px;
   grid-template-rows: 1fr;
   gap: var(--grid-gutter);
   width: 100%;

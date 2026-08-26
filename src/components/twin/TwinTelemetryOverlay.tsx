@@ -9,7 +9,6 @@ import styles from "./TwinTelemetryOverlay.module.css";
 
 export default function TwinTelemetryOverlay() {
   const flight = useTelemetryStore((s) => s.current.flight);
-  const gps    = useTelemetryStore((s) => s.current.gps);
   const batt   = useTelemetryStore((s) => s.current.battery);
   const signal = useTelemetryStore((s) => s.current.signal);
   const motor  = useTelemetryStore((s) => s.current.motor);
@@ -54,16 +53,6 @@ export default function TwinTelemetryOverlay() {
         <div className={styles.readout}>
           <span className={styles.label}>RSSI</span>
           <span className={styles.value}>{signal.rssi} dBm</span>
-        </div>
-        <div className={styles.readout}>
-          <span className={styles.label}>GPS</span>
-          <span className={styles.value}>
-            {gps.latitude.toFixed(4)}, {gps.longitude.toFixed(4)}
-          </span>
-        </div>
-        <div className={styles.readout}>
-          <span className={styles.label}>SAT</span>
-          <span className={styles.value}>{gps.satellites}</span>
         </div>
       </div>
 

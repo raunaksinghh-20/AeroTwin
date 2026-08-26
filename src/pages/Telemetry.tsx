@@ -139,9 +139,6 @@ export default function Telemetry() {
       "DC Bus Current (A)": f.dcBus.current,
       "Motor Power (W)": f.motor?.power ?? 0,
       "RSSI (dBm)": f.signal.rssi,
-      "GPS Satellites": f.gps.satellites,
-      "Latitude": f.gps.latitude,
-      "Longitude": f.gps.longitude,
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -153,10 +150,10 @@ export default function Telemetry() {
 
   // Helper: Export Telemetry Snapshots to CSV
   const exportSnapshotsToCSV = (frames: Telemetry[], filename: string) => {
-    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm),GPS_Sats,Latitude,Longitude\n";
+    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm)\n";
 
     frames.forEach((f) => {
-      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi},${f.gps.satellites},${f.gps.latitude.toFixed(6)},${f.gps.longitude.toFixed(6)}\n`;
+      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi}\n`;
     });
 
     const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
@@ -184,7 +181,6 @@ export default function Telemetry() {
           pitch: current.flight.pitch,
           yaw: current.flight.yaw,
         },
-        gps: current.gps,
         battery: {
           voltage: history.batteryVoltage[i]?.value ?? 0,
           current: history.batteryCurrent[i]?.value ?? 0,
@@ -204,6 +200,8 @@ export default function Telemetry() {
         },
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
+        motors: current.motors,
+        hydrogenSystem: current.hydrogenSystem,
       });
     }
     exportSnapshotsToExcel(frames.length > 0 ? frames : [current], `AeroTwin_All_Telemetry_${Date.now()}.xlsx`);
@@ -222,7 +220,6 @@ export default function Telemetry() {
           pitch: current.flight.pitch,
           yaw: current.flight.yaw,
         },
-        gps: current.gps,
         battery: {
           voltage: history.batteryVoltage[i]?.value ?? 0,
           current: history.batteryCurrent[i]?.value ?? 0,
@@ -242,6 +239,8 @@ export default function Telemetry() {
         },
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
+        motors: current.motors,
+        hydrogenSystem: current.hydrogenSystem,
       });
     }
     exportSnapshotsToCSV(frames.length > 0 ? frames : [current], `AeroTwin_All_Telemetry_${Date.now()}.csv`);

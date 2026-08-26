@@ -8,18 +8,25 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 
 import { useTelemetryStore } from "../store/telemetryStore";
+import { useSettingsStore } from "../store/settingsStore";
+import { updateBackendUdpPort } from "../lib/tauriCommands";
 import type { Telemetry } from "../types/telemetry";
 
 
 /**
  * Mount this hook ONCE at the top level (App.tsx).
- * Listens exclusively to real live UDP packets from the ESP32 via Tauri.
+ * Syncs saved UDP port with Rust backend and listens to telemetry packets.
  */
 export function useTauriTelemetry(): void {
   useEffect(() => {
     const store = useTelemetryStore.getState();
     store.resetMission();
     store.setConnectionStatus("disconnected");
+
+    const savedPort = useSettingsStore.getState().udpPort;
+    if (savedPort && savedPort !== 8888) {
+      updateBackendUdpPort(savedPort).catch(() => {});
+    }
 
     let watchdogTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -39,11 +46,12 @@ export function useTauriTelemetry(): void {
         store.setConnectionStatus("connected");
         store.updateTelemetry(snapshot);
 
-        // Reset watchdog timer: if no packets arrive for 3.5 seconds, set status to disconnected
+        // Reset watchdog timer: if no packets arrive for configured timeout, set status to disconnected
+        const timeoutMs = useSettingsStore.getState().watchdogTimeoutMs || 3500;
         if (watchdogTimer) clearTimeout(watchdogTimer);
         watchdogTimer = setTimeout(() => {
           store.setConnectionStatus("disconnected");
-        }, 3500);
+        }, timeoutMs);
       } catch (err) {
         console.warn("[UDP Telemetry] Received non-JSON packet from ESP32:", event.payload);
       }
