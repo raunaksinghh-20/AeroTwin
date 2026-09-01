@@ -390,10 +390,11 @@ export default function ComponentInfoCard() {
   // Live telemetry data
   const battery = useTelemetryStore((s) => s.current.battery);
   const fuelCell = useTelemetryStore((s) => s.current.fuelCell);
+  const dcBus = useTelemetryStore((s) => s.current.dcBus);
   const motor = useTelemetryStore((s) => s.current.motor);
-  const motors = useTelemetryStore((s) => s.current.motors);
-  const h2 = useTelemetryStore((s) => s.current.hydrogenSystem);
-  const connected = useTelemetryStore((s) => s.connectionStatus === "connected");
+  const signal = useTelemetryStore((s) => s.current.signal);
+  const gps = useTelemetryStore((s) => s.current.gps);
+  const flight = useTelemetryStore((s) => s.current.flight);
 
   const spec = useMemo(() => {
     if (!highlightedComponent) return null;
@@ -405,92 +406,63 @@ export default function ComponentInfoCard() {
   const Icon = spec.icon;
   const faultLevel = faultOverrides[spec.id] || "normal";
 
-  // Derive live dynamic metrics for this specific component
+  // Derive live dynamic metrics for this specific component strictly from received parameters
   const liveMetrics: { label: string; value: string; status?: "ok" | "caution" | "critical" }[] = [];
 
+  const totalMotorPower = motor?.power ?? (battery.voltage * battery.current + fuelCell.voltage * fuelCell.current);
+
   if (spec.id === "h2cylinder") {
-    const press = h2?.tankPressure > 0 ? h2.tankPressure : (fuelCell.pressure > 0 ? fuelCell.pressure : 240);
     liveMetrics.push(
       { label: "Tank Fuel Level", value: `${Math.round(fuelCell.tankPercentage)} %`, status: fuelCell.tankPercentage > 25 ? "ok" : "caution" },
-      { label: "Cylinder Pressure", value: `${press.toFixed(0)} bar`, status: press > 150 ? "ok" : "caution" },
-      { label: "Storage Temp", value: "22.4 °C", status: "ok" },
-      { label: "Estimated Mass", value: `${((fuelCell.tankPercentage / 100) * 0.42).toFixed(2)} kg H₂`, status: "ok" }
-    );
-  } else if (spec.id === "sensor1") {
-    const p1 = h2?.sensor1?.pressure ?? (fuelCell.pressure > 0 ? fuelCell.pressure : 240);
-    liveMetrics.push(
-      { label: "P1 Outlet Pressure", value: `${p1.toFixed(1)} bar`, status: "ok" },
-      { label: "Transducer Health", value: connected ? "NOMINAL" : "NO LINK", status: connected ? "ok" : "caution" },
-      { label: "Signal Integrity", value: "99.8 %", status: "ok" }
-    );
-  } else if (spec.id === "regulator") {
-    liveMetrics.push(
-      { label: "Delivery Pressure", value: `${(h2?.regulatorOutput ?? 2.5).toFixed(2)} bar`, status: "ok" },
-      { label: "Solenoid State", value: connected ? "OPEN / ACTIVE" : "CLOSED", status: connected ? "ok" : "caution" },
-      { label: "Gas Flow Rate", value: `${(h2?.flowRate ?? 18.4).toFixed(1)} L/min`, status: "ok" }
-    );
-  } else if (spec.id === "h2piping") {
-    liveMetrics.push(
-      { label: "Hydrogen Flow", value: `${(h2?.flowRate ?? 18.4).toFixed(1)} L/min`, status: "ok" },
-      { label: "H₂ Consumption", value: `${(h2?.consumption ?? 84).toFixed(0)} g/h`, status: "ok" },
-      { label: "Line Integrity", value: "100% SEALED", status: "ok" }
+      { label: "Cylinder Pressure", value: `${fuelCell.pressure.toFixed(1)} bar`, status: fuelCell.pressure > 150 ? "ok" : "caution" },
+      { label: "Fuel Cell Current", value: `${fuelCell.current.toFixed(1)} A`, status: "ok" },
+      { label: "Fuel Cell Voltage", value: `${fuelCell.voltage.toFixed(1)} V`, status: "ok" }
     );
   } else if (spec.id === "fuelcell") {
     liveMetrics.push(
-      { label: "Stack Voltage", value: `${fuelCell.voltage.toFixed(1)} V`, status: fuelCell.voltage > 22 ? "ok" : "caution" },
+      { label: "Stack Voltage", value: `${fuelCell.voltage.toFixed(1)} V`, status: fuelCell.voltage > 12 ? "ok" : "caution" },
       { label: "Stack Current", value: `${fuelCell.current.toFixed(1)} A`, status: "ok" },
       { label: "Stack Power", value: `${(fuelCell.voltage * fuelCell.current).toFixed(0)} W`, status: "ok" },
-      { label: "Operating Temp", value: `${fuelCell.temperature.toFixed(0)} °C`, status: fuelCell.temperature < 70 ? "ok" : "critical" },
-      { label: "Stack Efficiency", value: "54.2 %", status: "ok" }
-    );
-  } else if (spec.id === "sensor2") {
-    liveMetrics.push(
-      { label: "P2 Stack Inlet", value: `${(h2?.sensor2?.pressure ?? 2.48).toFixed(2)} bar`, status: "ok" },
-      { label: "Differential ΔP", value: "0.02 bar", status: "ok" },
-      { label: "Transducer Health", value: connected ? "NOMINAL" : "NO LINK", status: connected ? "ok" : "caution" }
+      { label: "Stack Temperature", value: `${fuelCell.temperature.toFixed(1)} °C`, status: fuelCell.temperature < 75 ? "ok" : "critical" },
+      { label: "Supply Pressure", value: `${fuelCell.pressure.toFixed(1)} bar`, status: "ok" },
+      { label: "Tank Level", value: `${fuelCell.tankPercentage.toFixed(1)} %`, status: "ok" }
     );
   } else if (spec.id === "battery") {
     liveMetrics.push(
-      { label: "State of Charge (SoC)", value: `${battery.percentage.toFixed(0)} %`, status: battery.percentage > 30 ? "ok" : battery.percentage > 15 ? "caution" : "critical" },
-      { label: "Pack Voltage", value: `${battery.voltage.toFixed(1)} V`, status: battery.voltage > 44 ? "ok" : "caution" },
+      { label: "State of Charge (SoC)", value: `${battery.percentage.toFixed(1)} %`, status: battery.percentage > 30 ? "ok" : battery.percentage > 15 ? "caution" : "critical" },
+      { label: "Pack Voltage", value: `${battery.voltage.toFixed(1)} V`, status: battery.voltage > 11 ? "ok" : "caution" },
       { label: "Discharge Current", value: `${battery.current.toFixed(1)} A`, status: "ok" },
-      { label: "Pack Temperature", value: `${battery.temperature.toFixed(0)} °C`, status: battery.temperature < 55 ? "ok" : "caution" },
-      { label: "Health (SoH)", value: "98.5 %", status: "ok" }
+      { label: "Pack Temperature", value: `${battery.temperature.toFixed(1)} °C`, status: battery.temperature < 55 ? "ok" : "caution" },
+      { label: "Power Output", value: `${(battery.voltage * battery.current).toFixed(0)} W`, status: "ok" }
     );
   } else if (spec.id === "pcb") {
     liveMetrics.push(
-      { label: "Main Bus Voltage", value: "48.2 V", status: "ok" },
-      { label: "Total Bus Current", value: `${(battery.current + fuelCell.current).toFixed(1)} A`, status: "ok" },
-      { label: "MCU Temp", value: "38.5 °C", status: "ok" },
-      { label: "CAN Heartbeat", value: connected ? "100 Hz ACTIVE" : "OFFLINE", status: connected ? "ok" : "caution" },
-      { label: "System Health", value: "ALL CHANNELS OK", status: "ok" }
+      { label: "DC Bus Voltage", value: `${dcBus.voltage.toFixed(1)} V`, status: "ok" },
+      { label: "DC Bus Current", value: `${dcBus.current.toFixed(1)} A`, status: "ok" },
+      { label: "Total Bus Power", value: `${(dcBus.voltage * dcBus.current).toFixed(0)} W`, status: "ok" },
+      { label: "Link RSSI", value: `${signal.rssi} dBm`, status: "ok" }
     );
   } else if (spec.id.startsWith("motor")) {
-    const motorIdx = parseInt(spec.id.replace("motor", ""), 10) - 1;
-    const m = motors?.[motorIdx];
-    const totalPower = motor?.power ?? (battery.voltage * battery.current + fuelCell.voltage * fuelCell.current);
-    const estPower = spec.id === "motor5" ? totalPower * 0.16 : totalPower * 0.21;
-    const estRpm = connected ? (spec.id === "motor5" ? 6400 : 4850) : 0;
-
+    const estPower = spec.id === "motor5" ? totalMotorPower * 0.16 : totalMotorPower * 0.21;
     liveMetrics.push(
-      { label: "Rotational Speed", value: `${m?.rpm ?? estRpm} RPM`, status: "ok" },
-      { label: "Power Output", value: `${(m?.power ?? estPower).toFixed(0)} W`, status: "ok" },
-      { label: "Phase Current", value: `${((m?.power ?? estPower) / 48).toFixed(1)} A`, status: "ok" },
-      { label: "Motor Temperature", value: `${m?.temperature ?? 42} °C`, status: "ok" },
-      { label: "Drive Mode", value: "FOC Sine Wave Vector", status: "ok" }
+      { label: "Allocated Power", value: `${estPower.toFixed(0)} W`, status: "ok" },
+      { label: "Total Motor Power", value: `${totalMotorPower.toFixed(0)} W`, status: "ok" },
+      { label: "Airspeed", value: `${flight.speed.toFixed(1)} m/s`, status: "ok" },
+      { label: "Altitude", value: `${flight.altitude.toFixed(1)} m`, status: "ok" }
     );
-  } else if (spec.id.startsWith("esc")) {
+  } else if (spec.id === "comms" || spec.id === "wiring") {
     liveMetrics.push(
-      { label: "Telemetry Status", value: connected ? "LINK NOMINAL" : "NO LINK", status: connected ? "ok" : "caution" },
-      { label: "PWM Duty Cycle", value: connected ? "68.5 %" : "0 %", status: "ok" },
-      { label: "FET Temperature", value: "44.2 °C", status: "ok" },
-      { label: "Telemetry Protocol", value: "DShot1200 Bidirectional", status: "ok" }
+      { label: "Radio RSSI", value: `${signal.rssi} dBm`, status: signal.rssi > -75 ? "ok" : "caution" },
+      { label: "GPS Satellites", value: `${gps.satellites}`, status: gps.satellites >= 6 ? "ok" : "caution" },
+      { label: "Latitude", value: `${gps.latitude.toFixed(6)}°`, status: "ok" },
+      { label: "Longitude", value: `${gps.longitude.toFixed(6)}°`, status: "ok" }
     );
   } else {
     liveMetrics.push(
-      { label: "Subsystem Status", value: "NOMINAL", status: "ok" },
-      { label: "Structural Integrity", value: "100%", status: "ok" },
-      { label: "Inspection State", value: "ACTIVE TARGET", status: "ok" }
+      { label: "Altitude", value: `${flight.altitude.toFixed(1)} m`, status: "ok" },
+      { label: "Airspeed", value: `${flight.speed.toFixed(1)} m/s`, status: "ok" },
+      { label: "Heading (Yaw)", value: `${flight.yaw.toFixed(1)}°`, status: "ok" },
+      { label: "Roll / Pitch", value: `${flight.roll.toFixed(1)}° / ${flight.pitch.toFixed(1)}°`, status: "ok" }
     );
   }
 

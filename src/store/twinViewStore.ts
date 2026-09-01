@@ -12,8 +12,7 @@ export type ViewMode =
   | "internal"      // Mode 3: Shell nearly invisible
   | "hydrogen"      // Mode 4: H₂ system highlighted
   | "electrical"    // Mode 5: Electrical system highlighted
-  | "fault"         // Mode 6: Fault detection view
-  | "exploded";     // Mode 7: Exploded engineering view
+  | "fault";        // Mode 6: Fault detection view
 
 export type FaultLevel = "normal" | "warning" | "fault" | "disconnected" | "nodata";
 
@@ -56,7 +55,6 @@ export const MODE_SHELL_OPACITY: Record<ViewMode, number> = {
   hydrogen: 0.15,
   electrical: 0.15,
   fault: 0.25,
-  exploded: 0.12,
 };
 
 export const useTwinViewStore = create<TwinViewState>((set) => ({
@@ -71,7 +69,7 @@ export const useTwinViewStore = create<TwinViewState>((set) => ({
     set({
       viewMode: mode,
       shellOpacity: MODE_SHELL_OPACITY[mode],
-      explodedFactor: mode === "exploded" ? 1.0 : 0,
+      explodedFactor: 0,
     }),
 
   setShellOpacity: (opacity) =>

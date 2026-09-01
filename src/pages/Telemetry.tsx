@@ -16,7 +16,7 @@ import type { Telemetry, TelemetryPoint } from "../types/telemetry";
 import styles from "./Telemetry.module.css";
 
 
-type CategoryTab = "ALL" | "FLIGHT" | "BATTERY" | "FUEL_CELL" | "DC_BUS" | "COMMS";
+type CategoryTab = "ALL" | "FLIGHT" | "GPS" | "BATTERY" | "FUEL_CELL" | "DC_BUS" | "COMMS";
 
 function calcStats(history: TelemetryPoint[], currentVal: number) {
   if (history.length === 0) return { min: currentVal, max: currentVal, avg: currentVal };
@@ -126,6 +126,9 @@ export default function Telemetry() {
       "Roll (deg)": f.flight.roll,
       "Pitch (deg)": f.flight.pitch,
       "Yaw (deg)": f.flight.yaw,
+      "GPS Latitude": f.gps.latitude,
+      "GPS Longitude": f.gps.longitude,
+      "GPS Satellites": f.gps.satellites,
       "Battery Voltage (V)": f.battery.voltage,
       "Battery Current (A)": f.battery.current,
       "Battery Level (%)": f.battery.percentage,
@@ -150,10 +153,10 @@ export default function Telemetry() {
 
   // Helper: Export Telemetry Snapshots to CSV
   const exportSnapshotsToCSV = (frames: Telemetry[], filename: string) => {
-    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm)\n";
+    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),Latitude,Longitude,Satellites,BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm)\n";
 
     frames.forEach((f) => {
-      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi}\n`;
+      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.gps.latitude.toFixed(6)},${f.gps.longitude.toFixed(6)},${f.gps.satellites},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi}\n`;
     });
 
     const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
@@ -181,6 +184,7 @@ export default function Telemetry() {
           pitch: current.flight.pitch,
           yaw: current.flight.yaw,
         },
+        gps: current.gps,
         battery: {
           voltage: history.batteryVoltage[i]?.value ?? 0,
           current: history.batteryCurrent[i]?.value ?? 0,
@@ -200,8 +204,6 @@ export default function Telemetry() {
         },
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
-        motors: current.motors,
-        hydrogenSystem: current.hydrogenSystem,
       });
     }
     exportSnapshotsToExcel(frames.length > 0 ? frames : [current], `AeroTwin_All_Telemetry_${Date.now()}.xlsx`);
@@ -220,6 +222,7 @@ export default function Telemetry() {
           pitch: current.flight.pitch,
           yaw: current.flight.yaw,
         },
+        gps: current.gps,
         battery: {
           voltage: history.batteryVoltage[i]?.value ?? 0,
           current: history.batteryCurrent[i]?.value ?? 0,
@@ -239,8 +242,6 @@ export default function Telemetry() {
         },
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
-        motors: current.motors,
-        hydrogenSystem: current.hydrogenSystem,
       });
     }
     exportSnapshotsToCSV(frames.length > 0 ? frames : [current], `AeroTwin_All_Telemetry_${Date.now()}.csv`);
@@ -262,7 +263,7 @@ export default function Telemetry() {
 
         {/* Subsystem Category Filter Tabs */}
         <div className={styles.tabs}>
-          {(["ALL", "FLIGHT", "BATTERY", "FUEL_CELL", "DC_BUS", "COMMS"] as CategoryTab[]).map((tab) => (
+          {(["ALL", "FLIGHT", "GPS", "BATTERY", "FUEL_CELL", "DC_BUS", "COMMS"] as CategoryTab[]).map((tab) => (
             <button
               key={tab}
               className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
@@ -421,6 +422,38 @@ export default function Telemetry() {
             </InstrumentCard>
           );
         })()}
+
+        {/* GPS Fix & Satellites */}
+        {isTabVisible("GPS") && (
+          <InstrumentCard label="GPS NAVIGATION & FIX" live={connected ? "live" : "lost"}>
+            <div className={styles.cardBody}>
+              <div className={styles.statRow}>
+                <div>
+                  <span className={styles.statValue}>{current.gps.satellites}</span>
+                  <span className={styles.statUnit}>Sats</span>
+                </div>
+                <div className={styles.subStats}>
+                  <span>LAT: {current.gps.latitude.toFixed(6)}°</span>
+                  <span>LON: {current.gps.longitude.toFixed(6)}°</span>
+                </div>
+              </div>
+              <div style={{ padding: "12px", background: "var(--surface-sunken)", borderRadius: 6, font: "var(--type-caption)", display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "var(--text-instrument)" }}>LATITUDE:</span>
+                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--accent-cyan)", fontWeight: 600 }}>{current.gps.latitude.toFixed(6)}°</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "var(--text-instrument)" }}>LONGITUDE:</span>
+                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--accent-cyan)", fontWeight: 600 }}>{current.gps.longitude.toFixed(6)}°</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "var(--text-instrument)" }}>SATELLITE LOCK:</span>
+                  <span style={{ fontFamily: "var(--font-mono)", color: current.gps.satellites >= 6 ? "var(--status-nominal)" : "var(--status-caution)", fontWeight: 600 }}>{current.gps.satellites >= 6 ? "3D FIX OK" : "ACQUIRING"}</span>
+                </div>
+              </div>
+            </div>
+          </InstrumentCard>
+        )}
 
         {/* Battery Voltage */}
         {isTabVisible("BATTERY") && (() => {

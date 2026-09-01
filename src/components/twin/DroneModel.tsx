@@ -90,8 +90,6 @@ function groupOpacity(mode: ViewMode, group: ComponentGroup, shellOpacity: numbe
       return 0.15;
     case "fault":
       return group === "shell" ? 0.15 : 1.0;
-    case "exploded":
-      return group === "shell" ? 0.08 : 1.0;
     default:
       return 1.0;
   }
@@ -100,27 +98,27 @@ function groupOpacity(mode: ViewMode, group: ComponentGroup, shellOpacity: numbe
 /* ── Exploded offsets for each component (Symmetrical & Clean) ── */
 
 const EXPLODED_OFFSETS: Record<string, [number, number, number]> = {
-  shell:       [0, 3.5, 0],
-  h2cylinder:  [0, -1.2, -2.5],
-  sensor1:     [0, -0.8, -1.8],
-  regulator:   [0, -0.6, -1.2],
-  h2piping:    [0, -0.4, -0.6],
-  fuelcell:    [0, -1.2, 0.0],
-  sensor2:     [0, -0.6, 0.7],
-  battery:     [0, -1.2, 1.6],
-  pcb:         [0, -1.2, 2.5],
-  wiring:      [0, -0.3, 0],
-  frame:       [0, -2.5, 0],
-  motor1:      [-3.5, 2.0, -0.6],
-  motor2:      [-3.5, 2.0, 0.8],
-  motor3:      [3.5, 2.0, -0.6],
-  motor4:      [3.5, 2.0, 0.8],
-  motor5:      [0, 2.0, 4.0],
-  esc1:        [-2.8, 0.6, -0.6],
-  esc2:        [-2.8, 0.6, 0.8],
-  esc3:        [2.8, 0.6, -0.6],
-  esc4:        [2.8, 0.6, 0.8],
-  esc5:        [0, 0.6, 3.5],
+  shell: [0, 3.5, 0],
+  h2cylinder: [0, -1.2, -2.5],
+  sensor1: [0, -0.8, -1.8],
+  regulator: [0, -0.6, -1.2],
+  h2piping: [0, -0.4, -0.6],
+  fuelcell: [0, -1.2, 0.0],
+  sensor2: [0, -0.6, 0.7],
+  battery: [0, -1.2, 1.6],
+  pcb: [0, -1.2, 2.5],
+  wiring: [0, -0.3, 0],
+  frame: [0, -2.5, 0],
+  motor1: [-2.8, 2.0, -0.35],
+  motor2: [-2.8, 2.0, 1.15],
+  motor3: [2.8, 2.0, -0.35],
+  motor4: [2.8, 2.0, 1.15],
+  motor5: [0, 2.0, 4.0],
+  esc1: [-2.0, 0.6, -0.35],
+  esc2: [-2.0, 0.6, 1.15],
+  esc3: [2.0, 0.6, -0.35],
+  esc4: [2.0, 0.6, 1.15],
+  esc5: [0, 0.6, 3.5],
 };
 
 /* ── Sleek Aerospace HUD Label (Unobtrusive & Offset) ──── */
@@ -207,42 +205,51 @@ function TwinLabel({ id, text, subtext, showLabels, highlightedComponent, positi
 function createWingShape(): THREE.Shape {
   const shape = new THREE.Shape();
 
-  // Start at nose (front center)
+  // Start at nose (front center needle tip)
   shape.moveTo(0, -4.5);
 
-  // Right side: nose → forward fuselage → wing leading edge
-  shape.bezierCurveTo(0.25, -4.2, 0.4, -3.8, 0.5, -3.2);
-  shape.bezierCurveTo(0.6, -2.8, 0.65, -2.3, 0.7, -1.8);
+  // Right side: Needle nose → forward fuselage
+  shape.bezierCurveTo(0.2, -4.2, 0.4, -3.8, 0.55, -3.2);
+  shape.bezierCurveTo(0.7, -2.7, 0.85, -2.2, 1.1, -1.8);
 
-  // Wing sweep out: forward leading edge extends outward
-  shape.bezierCurveTo(1.2, -1.5, 2.5, -1.8, 3.8, -1.2);
+  // Leading edge sweeps smoothly forward-outward in front of the forward duct (center at X=2.05, Y=-0.80)
+  shape.bezierCurveTo(1.5, -1.6, 2.4, -1.9, 3.5, -1.5);
+  shape.bezierCurveTo(4.2, -1.2, 4.8, -0.7, 4.9, 0.0);
 
-  // Wing tip (right) — wide sweep
-  shape.bezierCurveTo(4.4, -0.9, 4.8, -0.4, 4.6, 0.2);
+  // Wing tip (right)
+  shape.bezierCurveTo(4.9, 0.4, 4.7, 0.8, 4.3, 1.2);
 
-  // Trailing edge: concave bat-wing curve back inward
-  shape.bezierCurveTo(4.3, 0.7, 3.5, 1.2, 2.8, 1.6);
-  shape.bezierCurveTo(2.0, 2.0, 1.2, 2.5, 0.7, 2.8);
+  // Trailing edge sweeps inward behind the rear duct (center at X=2.05, Y=+0.70)
+  shape.bezierCurveTo(3.8, 1.6, 2.8, 2.0, 2.0, 2.3);
+  shape.bezierCurveTo(1.2, 2.6, 0.7, 2.9, 0.4, 3.2);
 
-  // Tail section right side
-  shape.bezierCurveTo(0.5, 3.0, 0.3, 3.3, 0.15, 3.5);
+  // Tail right side to center tail tip
+  shape.bezierCurveTo(0.25, 3.4, 0.1, 3.55, 0, 3.6);
 
-  // Tail tip
-  shape.lineTo(0, 3.6);
+  // Mirror Left Side:
+  shape.bezierCurveTo(-0.1, 3.55, -0.25, 3.4, -0.4, 3.2);
+  shape.bezierCurveTo(-0.7, 2.9, -1.2, 2.6, -2.0, 2.3);
+  shape.bezierCurveTo(-2.8, 2.0, -3.8, 1.6, -4.3, 1.2);
+  shape.bezierCurveTo(-4.7, 0.8, -4.9, 0.4, -4.9, 0.0);
+  shape.bezierCurveTo(-4.8, -0.7, -4.2, -1.2, -3.5, -1.5);
+  shape.bezierCurveTo(-2.4, -1.9, -1.5, -1.6, -1.1, -1.8);
+  shape.bezierCurveTo(-0.85, -2.2, -0.7, -2.7, -0.55, -3.2);
+  shape.bezierCurveTo(-0.4, -3.8, -0.2, -4.2, 0, -4.5);
 
-  // Mirror: left side (tail → nose)
-  shape.lineTo(-0.15, 3.5);
-  shape.bezierCurveTo(-0.3, 3.3, -0.5, 3.0, -0.7, 2.8);
-  shape.bezierCurveTo(-1.2, 2.5, -2.0, 2.0, -2.8, 1.6);
-  shape.bezierCurveTo(-3.5, 1.2, -4.3, 0.7, -4.6, 0.2);
+  // ── 4 Circular Rotor Duct Cutouts (matching outside.jpeg) ──
+  const ductRadius = 0.76;
+  const ductPositions2D: [number, number][] = [
+    [-2.05, -0.80], // Port Forward
+    [-2.05,  0.70], // Port Aft
+    [ 2.05, -0.80], // Stbd Forward
+    [ 2.05,  0.70], // Stbd Aft
+  ];
 
-  // Wing tip (left)
-  shape.bezierCurveTo(-4.8, -0.4, -4.4, -0.9, -3.8, -1.2);
-
-  // Left wing leading edge back to fuselage
-  shape.bezierCurveTo(-2.5, -1.8, -1.2, -1.5, -0.7, -1.8);
-  shape.bezierCurveTo(-0.65, -2.3, -0.6, -2.8, -0.5, -3.2);
-  shape.bezierCurveTo(-0.4, -3.8, -0.25, -4.2, 0, -4.5);
+  ductPositions2D.forEach(([dx, dy]) => {
+    const hole = new THREE.Path();
+    hole.absarc(dx, dy, ductRadius, 0, Math.PI * 2, true);
+    shape.holes.push(hole);
+  });
 
   return shape;
 }
@@ -432,11 +439,9 @@ export default function DroneModel({
 
   const isDark = theme === "dark";
 
-  // ── Propeller geometries ──
-  const liftPropGeo = useMemo(() => createPropellerGeometry(0.007), []);
-  const rearPropGeo = useMemo(() => createPropellerGeometry(0.005), []);
-  const liftBlurGeo = useMemo(() => createRotorBlurDiscGeometry(0.007), []);
-  const rearBlurGeo = useMemo(() => createRotorBlurDiscGeometry(0.005), []);
+  // ── Propeller geometries (scaled to 15-inch / 0.635m to sit cleanly inside 0.76m wing ducts) ──
+  const liftPropGeo = useMemo(() => createPropellerGeometry(0.005), []);
+  const liftBlurGeo = useMemo(() => createRotorBlurDiscGeometry(0.005), []);
 
   // ── Smoothed state ──
   const smoothed = useRef({ roll: 0, pitch: 0, yaw: 0 });
@@ -448,19 +453,8 @@ export default function DroneModel({
     roughness: 0.25, metalness: 0.4, transparent: true, opacity: 0.85,
   }), [isDark]);
 
-  const rearPropMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: isDark ? "#2a2e35" : "#555",
-    roughness: 0.3, metalness: 0.4, transparent: true, opacity: 0.85,
-  }), [isDark]);
-
   const liftBlurMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: isDark ? "#4FD8E0" : "#0F8E96",
-    roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0,
-    side: THREE.DoubleSide, depthWrite: false,
-  }), [isDark]);
-
-  const rearBlurMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: isDark ? "#F5A623" : "#B5730A",
     roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0,
     side: THREE.DoubleSide, depthWrite: false,
   }), [isDark]);
@@ -512,12 +506,12 @@ export default function DroneModel({
     new THREE.Vector3(0, -0.06, 1.25),
   ], []);
 
-  // ── Symmetrical Motor Positions ──
+  // ── Symmetrical Evenly-Spaced Motor Positions (encapsulated inside wing ducts) ──
   const motorPositions: [number, number, number][] = [
-    [-2.5, 0, -0.6],  // Motor 1: Port Forward Lift
-    [-2.5, 0,  0.8],  // Motor 2: Port Aft Lift
-    [ 2.5, 0, -0.6],  // Motor 3: Stbd Forward Lift
-    [ 2.5, 0,  0.8],  // Motor 4: Stbd Aft Lift
+    [-2.05, 0, -0.35], // Motor 1: Port Forward Lift
+    [-2.05, 0,  1.15], // Motor 2: Port Aft Lift
+    [ 2.05, 0, -0.35], // Motor 3: Stbd Forward Lift
+    [ 2.05, 0,  1.15], // Motor 4: Stbd Aft Lift
   ];
 
   // ── Animation Loop ──
@@ -545,7 +539,7 @@ export default function DroneModel({
       if (prop2Ref.current) prop2Ref.current.rotation.y -= spinSpeed;
       if (prop3Ref.current) prop3Ref.current.rotation.y -= spinSpeed;
       if (prop4Ref.current) prop4Ref.current.rotation.y += spinSpeed;
-      if (rearPropRef.current) rearPropRef.current.rotation.z += spinSpeed;
+      if (rearPropRef.current) rearPropRef.current.rotation.y += spinSpeed;
     }
 
     // Motion blur
@@ -553,9 +547,7 @@ export default function DroneModel({
     const targetBladeOpacity = 0.85 - normSpeed * 0.70;
     const targetBlurOpacity = normSpeed * 0.10;
     liftPropMat.opacity = targetBladeOpacity;
-    rearPropMat.opacity = targetBladeOpacity;
     liftBlurMat.opacity = targetBlurOpacity;
-    rearBlurMat.opacity = targetBlurOpacity;
 
     // Battery fill animation
     smoothedBattery.current = THREE.MathUtils.lerp(smoothedBattery.current, batteryPercent, lerpFactor);
@@ -731,30 +723,30 @@ export default function DroneModel({
               transparent opacity={frameVisible * 0.8} />
           </mesh>
 
-          {/* Symmetrical motor arm extensions */}
-          <mesh position={[-1.5, -0.1, -0.6]}>
-            <boxGeometry args={[2.1, 0.07, 0.1]} />
+          {/* Symmetrical motor arm extensions (aligned with wing ducts) */}
+          <mesh position={[-1.24, -0.1, -0.35]}>
+            <boxGeometry args={[1.65, 0.07, 0.1]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
-          <mesh position={[-1.5, -0.1, 0.8]}>
-            <boxGeometry args={[2.1, 0.07, 0.1]} />
+          <mesh position={[-1.24, -0.1, 1.15]}>
+            <boxGeometry args={[1.65, 0.07, 0.1]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
-          <mesh position={[1.5, -0.1, -0.6]}>
-            <boxGeometry args={[2.1, 0.07, 0.1]} />
+          <mesh position={[1.24, -0.1, -0.35]}>
+            <boxGeometry args={[1.65, 0.07, 0.1]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
-          <mesh position={[1.5, -0.1, 0.8]}>
-            <boxGeometry args={[2.1, 0.07, 0.1]} />
+          <mesh position={[1.24, -0.1, 1.15]}>
+            <boxGeometry args={[1.65, 0.07, 0.1]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
           {/* Rear thruster centerline arm */}
-          <mesh position={[0, -0.1, 2.55]}>
-            <boxGeometry args={[0.12, 0.08, 0.9]} />
+          <mesh position={[0, -0.1, 3.0]}>
+            <boxGeometry args={[0.12, 0.08, 1.6]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
@@ -1323,48 +1315,58 @@ export default function DroneModel({
 
 
       {/* ═══════════════════════════════════════════════════
-          12. MOTOR 5 — REAR THRUSTER (Straight on Centerline X = 0)
+          12. MOTOR 5 — REAR THRUSTER (Mounted Outside Shell Trailing Edge)
           ═══════════════════════════════════════════════════ */}
       <group
         position={[
           0 + (EXPLODED_OFFSETS.motor5[0] * smoothedExploded.current),
-          0.15 + (EXPLODED_OFFSETS.motor5[1] * smoothedExploded.current),
-          3.0 + (EXPLODED_OFFSETS.motor5[2] * smoothedExploded.current),
+          0 + (EXPLODED_OFFSETS.motor5[1] * smoothedExploded.current),
+          3.95 + (EXPLODED_OFFSETS.motor5[2] * smoothedExploded.current),
         ]}
         onClick={handleComponentClick("motor5")}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
       >
-        {/* Symmetrical centerline tail boom */}
-        <mesh position={[0, 0, -0.3]}>
-          <boxGeometry args={[0.1, 0.08, 0.6]} />
+        {/* Symmetrical centerline tail boom extending from frame through tail */}
+        <mesh position={[0, 0, -0.6]}>
+          <boxGeometry args={[0.08, 0.08, 1.2]} />
           <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
             transparent opacity={propVisible} />
         </mesh>
-        {/* Motor housing */}
-        <mesh rotation={[0, 0, 0]}>
-          <cylinderGeometry args={[0.12, 0.14, 0.18, 14]} />
-          <meshStandardMaterial
-            color={getFault("motor5") !== "normal" ? faultColor(getFault("motor5")) : motorColor}
-            roughness={0.25} metalness={0.85}
-            emissive={faultEmissive(getFault("motor5"), isHighlighted("motor5"))}
-            emissiveIntensity={faultEmissiveIntensity(getFault("motor5"), isHighlighted("motor5"))}
-            transparent opacity={propVisible} />
-        </mesh>
 
-        {/* Rear propeller (top-mounted) */}
-        <group ref={rearPropRef} position={[0, 0.15, 0]}>
-          <mesh geometry={rearPropGeo} material={rearPropMat} />
-          <mesh geometry={rearBlurGeo} material={rearBlurMat} rotation={[Math.PI / 2, 0, 0]} />
+        {/* Longitudinal Motor & Propeller Assembly: shaft on Z-axis, prop in XY plane facing +Z */}
+        <group rotation={[Math.PI / 2, 0, 0]}>
+          {/* Motor mount bracket */}
+          <mesh position={[0, -0.15, 0]}>
+            <cylinderGeometry args={[0.05, 0.06, 0.3, 10]} />
+            <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
+              transparent opacity={propVisible} />
+          </mesh>
+          {/* Motor housing */}
+          <mesh position={[0, 0.08, 0]}>
+            <cylinderGeometry args={[0.16, 0.18, 0.22, 18]} />
+            <meshStandardMaterial
+              color={getFault("motor5") !== "normal" ? faultColor(getFault("motor5")) : motorColor}
+              roughness={0.25} metalness={0.85}
+              emissive={faultEmissive(getFault("motor5"), isHighlighted("motor5"))}
+              emissiveIntensity={faultEmissiveIntensity(getFault("motor5"), isHighlighted("motor5"))}
+              transparent opacity={propVisible} />
+          </mesh>
+
+          {/* Rear propeller + blur disc (mounted outside outer shell) */}
+          <group ref={rearPropRef} position={[0, 0.28, 0]}>
+            <mesh geometry={liftPropGeo} material={liftPropMat} />
+            <mesh geometry={liftBlurGeo} material={liftBlurMat} rotation={[Math.PI / 2, 0, 0]} />
+          </group>
         </group>
 
         <TwinLabel
           id="motor5"
           text="REAR THRUST MOTOR"
-          subtext="LONGITUDINAL"
+          subtext="LONGITUDINAL PUSHER"
           showLabels={showLabels && propVisible > 0.2}
           highlightedComponent={highlightedComponent}
-          position={[0, 0.45, 0]}
+          position={[0, 0.52, 0]}
         />
       </group>
 

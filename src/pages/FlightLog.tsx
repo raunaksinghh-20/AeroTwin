@@ -155,10 +155,21 @@ export default function FlightLog() {
         "Relative Time (s)": history.altitude[i]?.time?.toFixed(1) ?? i,
         "Altitude (m)": history.altitude[i]?.value ?? 0,
         "Airspeed (m/s)": history.speed[i]?.value ?? 0,
+        "Roll (deg)": current.flight.roll,
+        "Pitch (deg)": current.flight.pitch,
+        "Yaw (deg)": current.flight.yaw,
+        "GPS Latitude": current.gps.latitude,
+        "GPS Longitude": current.gps.longitude,
+        "GPS Satellites": current.gps.satellites,
         "Battery Voltage (V)": history.batteryVoltage[i]?.value ?? 0,
         "Battery Current (A)": history.batteryCurrent[i]?.value ?? 0,
+        "Battery Level (%)": current.battery.percentage,
+        "Battery Temp (C)": current.battery.temperature,
         "Fuel Cell Voltage (V)": history.fuelCellVoltage[i]?.value ?? 0,
         "Fuel Cell Current (A)": history.fuelCellCurrent[i]?.value ?? 0,
+        "Fuel Cell Temp (C)": current.fuelCell.temperature,
+        "Fuel Cell Tank (%)": current.fuelCell.tankPercentage,
+        "Fuel Cell Pressure (bar)": current.fuelCell.pressure,
         "DC Bus Voltage (V)": history.dcBusVoltage[i]?.value ?? 0,
         "DC Bus Current (A)": history.dcBusCurrent[i]?.value ?? 0,
         "Motor Power (W)": history.motorPower[i]?.value ?? 0,
@@ -171,10 +182,21 @@ export default function FlightLog() {
         "Relative Time (s)": 0,
         "Altitude (m)": current.flight.altitude,
         "Airspeed (m/s)": current.flight.speed,
+        "Roll (deg)": current.flight.roll,
+        "Pitch (deg)": current.flight.pitch,
+        "Yaw (deg)": current.flight.yaw,
+        "GPS Latitude": current.gps.latitude,
+        "GPS Longitude": current.gps.longitude,
+        "GPS Satellites": current.gps.satellites,
         "Battery Voltage (V)": current.battery.voltage,
         "Battery Current (A)": current.battery.current,
+        "Battery Level (%)": current.battery.percentage,
+        "Battery Temp (C)": current.battery.temperature,
         "Fuel Cell Voltage (V)": current.fuelCell.voltage,
         "Fuel Cell Current (A)": current.fuelCell.current,
+        "Fuel Cell Temp (C)": current.fuelCell.temperature,
+        "Fuel Cell Tank (%)": current.fuelCell.tankPercentage,
+        "Fuel Cell Pressure (bar)": current.fuelCell.pressure,
         "DC Bus Voltage (V)": current.dcBus.voltage,
         "DC Bus Current (A)": current.dcBus.current,
         "Motor Power (W)": current.motor?.power ?? 0,
@@ -190,7 +212,7 @@ export default function FlightLog() {
   };
 
   const handleExportCSV = () => {
-    let csvContent = "data:text/csv;charset=utf-8,Time(s),Altitude(m),Speed(m/s),BatVoltage(V),BatCurrent(A),FCVoltage(V),FCCurrent(A),MotorPower(W),RSSI(dBm)\n";
+    let csvContent = "data:text/csv;charset=utf-8,Time(s),Altitude(m),Speed(m/s),Roll(deg),Pitch(deg),Yaw(deg),Latitude,Longitude,Satellites,BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm)\n";
     const len = history.altitude.length;
 
     for (let i = 0; i < len; i++) {
@@ -201,10 +223,12 @@ export default function FlightLog() {
       const bi = history.batteryCurrent[i]?.value ?? 0;
       const fcv = history.fuelCellVoltage[i]?.value ?? 0;
       const fci = history.fuelCellCurrent[i]?.value ?? 0;
+      const dcv = history.dcBusVoltage[i]?.value ?? 0;
+      const dci = history.dcBusCurrent[i]?.value ?? 0;
       const pwr = history.motorPower[i]?.value ?? 0;
       const rssi = history.rssi[i]?.value ?? 0;
 
-      csvContent += `${time.toFixed(1)},${alt.toFixed(2)},${spd.toFixed(2)},${bv.toFixed(2)},${bi.toFixed(2)},${fcv.toFixed(2)},${fci.toFixed(2)},${pwr.toFixed(1)},${rssi}\n`;
+      csvContent += `${time.toFixed(1)},${alt.toFixed(2)},${spd.toFixed(2)},${current.flight.roll.toFixed(1)},${current.flight.pitch.toFixed(1)},${current.flight.yaw.toFixed(1)},${current.gps.latitude.toFixed(6)},${current.gps.longitude.toFixed(6)},${current.gps.satellites},${bv.toFixed(2)},${bi.toFixed(2)},${current.battery.percentage.toFixed(1)},${current.battery.temperature.toFixed(1)},${fcv.toFixed(2)},${fci.toFixed(2)},${current.fuelCell.temperature.toFixed(1)},${current.fuelCell.tankPercentage.toFixed(1)},${current.fuelCell.pressure.toFixed(1)},${dcv.toFixed(2)},${dci.toFixed(2)},${pwr.toFixed(1)},${rssi}\n`;
     }
 
     const encodedUri = encodeURI(csvContent);

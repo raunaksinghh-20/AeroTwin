@@ -6,7 +6,7 @@
 
 import {
   Eye, RotateCcw, Layers, Box, Flame, Zap, AlertTriangle,
-  Maximize2, Tag,
+  Tag,
 } from "lucide-react";
 import { useTwinViewStore, type ViewMode } from "../../store/twinViewStore";
 import styles from "./ViewControls.module.css";
@@ -33,15 +33,12 @@ const viewModes: { mode: ViewMode; label: string; icon: React.ComponentType<{ si
   { mode: "hydrogen",    label: "H₂",   icon: Flame },
   { mode: "electrical",  label: "ELEC", icon: Zap },
   { mode: "fault",       label: "FAULT",icon: AlertTriangle },
-  { mode: "exploded",    label: "EXPL", icon: Maximize2 },
 ];
 
 
 export default function ViewControls({ onPreset, onReset }: ViewControlsProps) {
   const viewMode = useTwinViewStore((s) => s.viewMode);
   const setViewMode = useTwinViewStore((s) => s.setViewMode);
-  const explodedFactor = useTwinViewStore((s) => s.explodedFactor);
-  const setExplodedFactor = useTwinViewStore((s) => s.setExplodedFactor);
   const shellOpacity = useTwinViewStore((s) => s.shellOpacity);
   const setShellOpacity = useTwinViewStore((s) => s.setShellOpacity);
   const showLabels = useTwinViewStore((s) => s.showLabels);
@@ -116,19 +113,6 @@ export default function ViewControls({ onPreset, onReset }: ViewControlsProps) {
             min={0} max={100}
             value={Math.round(shellOpacity * 100)}
             onChange={(e) => setShellOpacity(Number(e.target.value) / 100)}
-            className={styles.slider}
-          />
-        </div>
-      )}
-
-      {(viewMode === "exploded" || explodedFactor > 0) && (
-        <div className={styles.sliderGroup}>
-          <span className={styles.sliderLabel}>EXPLODE</span>
-          <input
-            type="range"
-            min={0} max={100}
-            value={Math.round(explodedFactor * 100)}
-            onChange={(e) => setExplodedFactor(Number(e.target.value) / 100)}
             className={styles.slider}
           />
         </div>
