@@ -1,12 +1,3 @@
-/* ────────────────────────────────────────────────────────
-   AEROTWIN — DRONE MODEL (Hydrogen Fuel-Cell Hybrid UAV)
-   High-fidelity 3D digital twin matching:
-   - inside.jpeg: Internal engineering architecture
-   - outside.jpeg: AARYANS POWER flying-wing outer body
-   Clean straight-line longitudinal component alignment.
-   Crystal-clear translucent composite (no black tint).
-   Sleek unobtrusive HUD component callouts with 3D click.
-   ──────────────────────────────────────────────────────── */
 
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -99,15 +90,15 @@ function groupOpacity(mode: ViewMode, group: ComponentGroup, shellOpacity: numbe
 
 const EXPLODED_OFFSETS: Record<string, [number, number, number]> = {
   shell: [0, 3.5, 0],
-  h2cylinder: [0, -1.2, -2.5],
-  sensor1: [0, -0.8, -1.8],
-  regulator: [0, -0.6, -1.2],
-  h2piping: [0, -0.4, -0.6],
-  fuelcell: [0, -1.2, 0.0],
-  sensor2: [0, -0.6, 0.7],
-  battery: [0, -1.2, 1.6],
-  pcb: [0, -1.2, 2.5],
-  wiring: [0, -0.3, 0],
+  h2cylinder: [0, -1.2, -2.0],
+  sensor1: [0, -0.8, -1.4],
+  regulator: [0, -0.6, -0.8],
+  h2piping: [0, -0.4, -0.2],
+  fuelcell: [0, -1.2, 0.4],
+  sensor2: [0, -0.6, 1.1],
+  battery: [0, -1.2, 2.0],
+  pcb: [0, -1.2, 2.8],
+  wiring: [0, -0.3, 0.4],
   frame: [0, -2.5, 0],
   motor1: [-2.8, 2.0, -0.35],
   motor2: [-2.8, 2.0, 1.15],
@@ -205,44 +196,53 @@ function TwinLabel({ id, text, subtext, showLabels, highlightedComponent, positi
 function createWingShape(): THREE.Shape {
   const shape = new THREE.Shape();
 
-  // Start at nose (front center needle tip)
-  shape.moveTo(0, -4.5);
+  // Start at front pointed apex (compact length kept, pointed tip matching original profile)
+  const noseY = -2.95;
+  shape.moveTo(0, noseY);
 
-  // Right side: Needle nose → forward fuselage
-  shape.bezierCurveTo(0.2, -4.2, 0.4, -3.8, 0.55, -3.2);
-  shape.bezierCurveTo(0.7, -2.7, 0.85, -2.2, 1.1, -1.8);
+  // Right side: Pointed nose tip → forward fuselage
+  shape.bezierCurveTo(0.08, -2.72, 0.24, -2.40, 0.44, -2.10);
 
-  // Leading edge sweeps smoothly forward-outward in front of the forward duct (center at X=2.05, Y=-0.80)
-  shape.bezierCurveTo(1.5, -1.6, 2.4, -1.9, 3.5, -1.5);
-  shape.bezierCurveTo(4.2, -1.2, 4.8, -0.7, 4.9, 0.0);
+  // Smooth concave curved fillet connecting head to wing leading edge
+  shape.bezierCurveTo(0.60, -1.90, 0.98, -1.86, 1.48, -1.82);
 
-  // Wing tip (right)
-  shape.bezierCurveTo(4.9, 0.4, 4.7, 0.8, 4.3, 1.2);
+  // Wing leading edge sweeps gracefully towards forward rotor
+  shape.bezierCurveTo(1.75, -1.76, 1.94, -1.64, 2.15, -1.56);
 
-  // Trailing edge sweeps inward behind the rear duct (center at X=2.05, Y=+0.70)
-  shape.bezierCurveTo(3.8, 1.6, 2.8, 2.0, 2.0, 2.3);
-  shape.bezierCurveTo(1.2, 2.6, 0.7, 2.9, 0.4, 3.2);
+  // Outer wing flank: contoured tightly edge-to-edge around the forward rotor (center X=2.05, Y=-0.80)
+  shape.bezierCurveTo(2.54, -1.42, 2.81, -1.16, 2.81, -0.80);
 
-  // Tail right side to center tail tip
-  shape.bezierCurveTo(0.25, 3.4, 0.1, 3.55, 0, 3.6);
+  // Edge-to-edge flank between forward and aft ducted rotors (subtle waist hugging the circular ducts)
+  shape.bezierCurveTo(2.81, -0.35, 2.79, -0.15, 2.79, -0.05);
+  shape.bezierCurveTo(2.79, 0.05, 2.81, 0.25, 2.81, 0.70);
+
+  // Outer wing flank: contoured tightly edge-to-edge around the aft rotor (center X=2.05, Y=+0.70)
+  shape.bezierCurveTo(2.81, 1.16, 2.54, 1.42, 2.15, 1.56);
+
+  // Trailing edge sweeps smoothly inward behind aft rotors toward fuselage and tail
+  shape.bezierCurveTo(1.94, 1.64, 1.75, 1.76, 1.48, 1.82);
+  shape.bezierCurveTo(1.05, 1.98, 0.60, 2.55, 0.35, 2.88);
+  shape.bezierCurveTo(0.20, 3.12, 0.08, 3.38, 0, 3.60);
 
   // Mirror Left Side:
-  shape.bezierCurveTo(-0.1, 3.55, -0.25, 3.4, -0.4, 3.2);
-  shape.bezierCurveTo(-0.7, 2.9, -1.2, 2.6, -2.0, 2.3);
-  shape.bezierCurveTo(-2.8, 2.0, -3.8, 1.6, -4.3, 1.2);
-  shape.bezierCurveTo(-4.7, 0.8, -4.9, 0.4, -4.9, 0.0);
-  shape.bezierCurveTo(-4.8, -0.7, -4.2, -1.2, -3.5, -1.5);
-  shape.bezierCurveTo(-2.4, -1.9, -1.5, -1.6, -1.1, -1.8);
-  shape.bezierCurveTo(-0.85, -2.2, -0.7, -2.7, -0.55, -3.2);
-  shape.bezierCurveTo(-0.4, -3.8, -0.2, -4.2, 0, -4.5);
+  shape.bezierCurveTo(-0.08, 3.38, -0.20, 3.12, -0.35, 2.88);
+  shape.bezierCurveTo(-0.60, 2.55, -1.05, 1.98, -1.48, 1.82);
+  shape.bezierCurveTo(-1.75, 1.76, -1.94, 1.64, -2.15, 1.56);
+  shape.bezierCurveTo(-2.54, 1.42, -2.81, 1.16, -2.81, 0.70);
+  shape.bezierCurveTo(-2.81, 0.25, -2.79, 0.05, -2.79, -0.05);
+  shape.bezierCurveTo(-2.79, -0.15, -2.81, -0.35, -2.81, -0.80);
+  shape.bezierCurveTo(-2.81, -1.16, -2.54, -1.42, -2.15, -1.56);
+  shape.bezierCurveTo(-1.94, -1.64, -1.75, -1.76, -1.48, -1.82);
+  shape.bezierCurveTo(-0.98, -1.86, -0.60, -1.90, -0.44, -2.10);
+  shape.bezierCurveTo(-0.24, -2.40, -0.08, -2.72, 0, noseY);
 
   // ── 4 Circular Rotor Duct Cutouts (matching outside.jpeg) ──
-  const ductRadius = 0.76;
+  const ductRadius = 0.70;
   const ductPositions2D: [number, number][] = [
     [-2.05, -0.80], // Port Forward
-    [-2.05,  0.70], // Port Aft
-    [ 2.05, -0.80], // Stbd Forward
-    [ 2.05,  0.70], // Stbd Aft
+    [-2.05, 0.70], // Port Aft
+    [2.05, -0.80], // Stbd Forward
+    [2.05, 0.70], // Stbd Aft
   ];
 
   ductPositions2D.forEach(([dx, dy]) => {
@@ -472,14 +472,14 @@ export default function DroneModel({
     const extrudeSettings: THREE.ExtrudeGeometryOptions = {
       depth: 0.45,
       bevelEnabled: true,
-      bevelThickness: 0.12,
-      bevelSize: 0.15,
+      bevelThickness: 0.10,
+      bevelSize: 0.05,
       bevelOffset: 0,
       bevelSegments: 8,
       curveSegments: 48,
     };
     const geo = new THREE.ExtrudeGeometry(wingShape, extrudeSettings);
-    geo.center();
+    geo.translate(0, 0.45, -0.225);
     geo.rotateX(Math.PI / 2);
     geo.computeVertexNormals();
     return geo;
@@ -487,31 +487,31 @@ export default function DroneModel({
 
   // ── Straight-Line H₂ Piping (aligned along X = 0) ──
   const h2PipePoints = useMemo(() => [
-    new THREE.Vector3(0, 0.06, -1.3),   // cylinder outlet
-    new THREE.Vector3(0, 0.06, -1.05),  // sensor 1
-    new THREE.Vector3(0, 0.06, -0.65),  // regulator
-    new THREE.Vector3(0, 0.06, -0.25),  // fuel cell stack inlet
+    new THREE.Vector3(0, 0.06, -0.85),  // cylinder outlet
+    new THREE.Vector3(0, 0.06, -0.60),  // sensor 1
+    new THREE.Vector3(0, 0.06, -0.20),  // regulator
+    new THREE.Vector3(0, 0.06, 0.20),   // fuel cell stack inlet
   ], []);
 
   // ── Symmetrical Straight-Line Wiring Backbone (along X = 0) ──
   const batteryToPcb = useMemo(() => [
-    new THREE.Vector3(0, -0.06, 1.25),
-    new THREE.Vector3(0, -0.06, 1.65),
-    new THREE.Vector3(0, -0.06, 2.0),
+    new THREE.Vector3(0, -0.06, 1.70),
+    new THREE.Vector3(0, -0.06, 2.05),
+    new THREE.Vector3(0, -0.06, 2.45),
   ], []);
 
   const fuelCellToPcb = useMemo(() => [
-    new THREE.Vector3(0, -0.06, 0.15),
-    new THREE.Vector3(0, -0.06, 0.70),
-    new THREE.Vector3(0, -0.06, 1.25),
+    new THREE.Vector3(0, -0.06, 0.60),
+    new THREE.Vector3(0, -0.06, 1.50),
+    new THREE.Vector3(0, -0.06, 2.45),
   ], []);
 
   // ── Symmetrical Evenly-Spaced Motor Positions (encapsulated inside wing ducts) ──
   const motorPositions: [number, number, number][] = [
     [-2.05, 0, -0.35], // Motor 1: Port Forward Lift
-    [-2.05, 0,  1.15], // Motor 2: Port Aft Lift
-    [ 2.05, 0, -0.35], // Motor 3: Stbd Forward Lift
-    [ 2.05, 0,  1.15], // Motor 4: Stbd Aft Lift
+    [-2.05, 0, 1.15], // Motor 2: Port Aft Lift
+    [2.05, 0, -0.35], // Motor 3: Stbd Forward Lift
+    [2.05, 0, 1.15], // Motor 4: Stbd Aft Lift
   ];
 
   // ── Animation Loop ──
@@ -696,19 +696,19 @@ export default function DroneModel({
           onPointerOut={handlePointerOut}
         >
           {/* Main longitudinal beams (symmetric left and right) */}
-          <mesh position={[-0.42, -0.15, 0.1]}>
-            <boxGeometry args={[0.08, 0.08, 5.4]} />
+          <mesh position={[-0.42, -0.15, 0.55]}>
+            <boxGeometry args={[0.08, 0.08, 4.30]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
-          <mesh position={[0.42, -0.15, 0.1]}>
-            <boxGeometry args={[0.08, 0.08, 5.4]} />
+          <mesh position={[0.42, -0.15, 0.55]}>
+            <boxGeometry args={[0.08, 0.08, 4.30]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
 
           {/* Cross beams along the straight spine */}
-          {[-2.0, -1.0, 0.0, 1.0, 2.0].map((z, i) => (
+          {[-1.55, -0.80, 0.0, 0.80, 1.60, 2.40, 2.65].map((z, i) => (
             <mesh key={`cross-${i}`} position={[0, -0.15, z]}>
               <boxGeometry args={[0.92, 0.06, 0.06]} />
               <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
@@ -717,8 +717,8 @@ export default function DroneModel({
           ))}
 
           {/* Central mounting spine plate */}
-          <mesh position={[0, -0.22, 0.1]}>
-            <boxGeometry args={[0.88, 0.02, 5.4]} />
+          <mesh position={[0, -0.22, 0.55]}>
+            <boxGeometry args={[0.88, 0.02, 4.30]} />
             <meshStandardMaterial color={armColor} roughness={0.5} metalness={0.7}
               transparent opacity={frameVisible * 0.8} />
           </mesh>
@@ -745,8 +745,8 @@ export default function DroneModel({
               transparent opacity={frameVisible} />
           </mesh>
           {/* Rear thruster centerline arm */}
-          <mesh position={[0, -0.1, 3.0]}>
-            <boxGeometry args={[0.12, 0.08, 1.6]} />
+          <mesh position={[0, -0.1, 3.32]}>
+            <boxGeometry args={[0.12, 0.08, 1.3]} />
             <meshStandardMaterial color={armColor} roughness={0.4} metalness={0.8}
               transparent opacity={frameVisible} />
           </mesh>
@@ -756,7 +756,7 @@ export default function DroneModel({
             text="STRUCTURAL FRAME"
             showLabels={showLabels}
             highlightedComponent={highlightedComponent}
-            position={[0, -0.35, 0]}
+            position={[0, -0.35, 0.55]}
           />
         </group>
       )}
@@ -770,7 +770,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.h2cylinder[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.h2cylinder[1] * smoothedExploded.current),
-            -1.8 + (EXPLODED_OFFSETS.h2cylinder[2] * smoothedExploded.current),
+            -1.35 + (EXPLODED_OFFSETS.h2cylinder[2] * smoothedExploded.current),
           ]}
           rotation={[0, Math.PI, 0]}
           onClick={handleComponentClick("h2cylinder")}
@@ -809,7 +809,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.sensor1[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.sensor1[1] * smoothedExploded.current),
-            -1.05 + (EXPLODED_OFFSETS.sensor1[2] * smoothedExploded.current),
+            -0.60 + (EXPLODED_OFFSETS.sensor1[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("sensor1")}
           onPointerOver={handlePointerOver}
@@ -836,7 +836,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.regulator[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.regulator[1] * smoothedExploded.current),
-            -0.65 + (EXPLODED_OFFSETS.regulator[2] * smoothedExploded.current),
+            -0.20 + (EXPLODED_OFFSETS.regulator[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("regulator")}
           onPointerOver={handlePointerOver}
@@ -900,7 +900,7 @@ export default function DroneModel({
             text="H₂ SUPPLY LINE"
             showLabels={showLabels}
             highlightedComponent={highlightedComponent}
-            position={[0, 0.22, -0.45]}
+            position={[0, 0.22, 0.0]}
           />
         </group>
       )}
@@ -914,7 +914,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.fuelcell[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.fuelcell[1] * smoothedExploded.current),
-            0.15 + (EXPLODED_OFFSETS.fuelcell[2] * smoothedExploded.current),
+            0.60 + (EXPLODED_OFFSETS.fuelcell[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("fuelcell")}
           onPointerOver={handlePointerOver}
@@ -984,7 +984,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.sensor2[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.sensor2[1] * smoothedExploded.current),
-            0.65 + (EXPLODED_OFFSETS.sensor2[2] * smoothedExploded.current),
+            1.10 + (EXPLODED_OFFSETS.sensor2[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("sensor2")}
           onPointerOver={handlePointerOver}
@@ -1011,7 +1011,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.battery[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.battery[1] * smoothedExploded.current),
-            1.25 + (EXPLODED_OFFSETS.battery[2] * smoothedExploded.current),
+            1.70 + (EXPLODED_OFFSETS.battery[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("battery")}
           onPointerOver={handlePointerOver}
@@ -1064,7 +1064,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.pcb[0] * smoothedExploded.current),
             0.06 + (EXPLODED_OFFSETS.pcb[1] * smoothedExploded.current),
-            2.0 + (EXPLODED_OFFSETS.pcb[2] * smoothedExploded.current),
+            2.45 + (EXPLODED_OFFSETS.pcb[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("pcb")}
           onPointerOver={handlePointerOver}
@@ -1152,7 +1152,7 @@ export default function DroneModel({
           {motorPositions.map((mp, i) => (
             <Cable key={`esc-wire-${i}`}
               points={[
-                new THREE.Vector3(0, -0.06, 2.0),
+                new THREE.Vector3(0, -0.06, 2.45),
                 new THREE.Vector3(mp[0] * 0.45, -0.08, mp[2]),
                 new THREE.Vector3(mp[0] * 0.72, -0.08, mp[2]),
                 new THREE.Vector3(mp[0], mp[1] - 0.05, mp[2]),
@@ -1164,9 +1164,9 @@ export default function DroneModel({
           {/* Straight line to Rear ESC & Motor 5 */}
           <Cable
             points={[
-              new THREE.Vector3(0, -0.06, 2.0),
-              new THREE.Vector3(0, -0.06, 2.5),
-              new THREE.Vector3(0, 0.05, 3.0),
+              new THREE.Vector3(0, -0.06, 2.45),
+              new THREE.Vector3(0, -0.06, 2.80),
+              new THREE.Vector3(0, 0.05, 3.20),
             ]}
             color="#3B82F6" thickness={0.008}
           />
@@ -1176,7 +1176,7 @@ export default function DroneModel({
             text="WIRING HARNESS"
             showLabels={showLabels}
             highlightedComponent={highlightedComponent}
-            position={[0, -0.12, 1.0]}
+            position={[0, -0.12, 1.45]}
           />
         </group>
       )}
@@ -1226,7 +1226,7 @@ export default function DroneModel({
           position={[
             0 + (EXPLODED_OFFSETS.esc5[0] * smoothedExploded.current),
             -0.06 + (EXPLODED_OFFSETS.esc5[1] * smoothedExploded.current),
-            2.5 + (EXPLODED_OFFSETS.esc5[2] * smoothedExploded.current),
+            2.80 + (EXPLODED_OFFSETS.esc5[2] * smoothedExploded.current),
           ]}
           onClick={handleComponentClick("esc5")}
           onPointerOver={handlePointerOver}
