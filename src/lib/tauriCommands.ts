@@ -37,3 +37,23 @@ export async function getBackendUdpPort(): Promise<number | null> {
     return null;
   }
 }
+
+/**
+ * Broadcasts a 2-byte throttle packet [throttleType, value] to port 8889.
+ * @param throttleType 0 for Common Throttle, 1 for Rear Throttle
+ * @param value Throttle percentage (0-100)
+ */
+export async function sendThrottleCommand(
+  throttleType: 0 | 1,
+  value: number
+): Promise<void> {
+  try {
+    await invoke("send_throttle_command", {
+      throttleType,
+      value: Math.round(Math.max(0, Math.min(100, value))),
+    });
+  } catch (err) {
+    console.warn("[Tauri UDP] Failed to send throttle command:", err);
+  }
+}
+

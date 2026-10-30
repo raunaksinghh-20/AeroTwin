@@ -4,13 +4,11 @@
    a responsive instrument-panel grid.
    ──────────────────────────────────────────────────────── */
 
-import { useMemo } from "react";
+/* ── Dashboard Page ────────────────────────────────────── */
 import {
-  Mountain,
   Gauge as GaugeIcon,
   Battery,
   Flame,
-  Clock,
   Zap,
   WifiOff,
 } from "lucide-react";
@@ -20,10 +18,11 @@ import { useTelemetryStore } from "../store/telemetryStore";
 /* ── Common ────────────────────────────────────────────── */
 import StatCard from "../components/common/StatCard";
 import InstrumentCard from "../components/common/InstrumentCard";
+import EmergencyAbortCard from "../components/common/EmergencyAbortCard";
+import SolenoidValveCard from "../components/common/SolenoidValveCard";
 
 /* ── Flight ────────────────────────────────────────────── */
-import AttitudeRing from "../components/flight/AttitudeRing";
-import AltitudeChart from "../components/flight/AltitudeChart";
+import ThrottleControlPanel from "../components/flight/ThrottleControlPanel";
 
 /* ── Power ─────────────────────────────────────────────── */
 import BatteryPanel from "../components/power/BatteryPanel";
@@ -44,21 +43,8 @@ export default function Dashboard() {
   const battery = useTelemetryStore((s) => s.current.battery);
   const fuelCell = useTelemetryStore((s) => s.current.fuelCell);
   const connectionStatus = useTelemetryStore((s) => s.connectionStatus);
-  const missionStart = useTelemetryStore((s) => s.missionStartTime);
 
   const liveStatus = connectionStatus === "connected" ? "live" as const : "lost" as const;
-
-  // Mission elapsed time
-  const missionElapsed = useMemo(() => {
-    if (connectionStatus !== "connected") {
-      return "00:00:00";
-    }
-    const elapsed = Math.floor((Date.now() - missionStart) / 1000);
-    const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
-    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
-    const s = String(elapsed % 60).padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  }, [missionStart, connectionStatus]);
 
   // Battery bar for StatCard
   const batteryBar = (
@@ -119,12 +105,7 @@ export default function Dashboard() {
 
       {/* ════════════════ ROW 1 — STAT CARDS ════════════════ */}
       <section className={styles.statRow}>
-        <StatCard
-          label="ALT · M"
-          value={flight.altitude.toFixed(1)}
-          unit="m"
-          icon={Mountain}
-        />
+        <SolenoidValveCard />
         <StatCard
           label="SPD · M/S"
           value={flight.speed.toFixed(1)}
@@ -145,11 +126,7 @@ export default function Dashboard() {
           icon={Flame}
           sub={h2TankBar}
         />
-        <StatCard
-          label="FLIGHT TIME"
-          value={missionElapsed}
-          icon={Clock}
-        />
+        <EmergencyAbortCard />
       </section>
 
       {/* ════════════════ ROW 2 — POWER PANELS ══════════════ */}
@@ -185,12 +162,12 @@ export default function Dashboard() {
       {/* ════════════════ ROW 4 — ATTITUDE + MOTOR POWER ════════ */}
       <section className={styles.flightRow}>
         <InstrumentCard
-          label="ATTITUDE"
+          label="THROTTLE CONTROL"
           live={liveStatus}
           bracketFrame
           className={styles.attitudeCard}
         >
-          <AttitudeRing />
+          <ThrottleControlPanel />
         </InstrumentCard>
 
         <InstrumentCard
@@ -203,27 +180,24 @@ export default function Dashboard() {
         </InstrumentCard>
       </section>
 
-      {/* ════════════════ ROW 5 — CONTRIBUTION & ALTITUDE ═════ */}
-      <section className={styles.gaugeRow}>
-        <InstrumentCard label="POWER SOURCE CONTRIBUTION">
-          <PowerContribution />
-        </InstrumentCard>
+      {/* ════════════════ ROW 5 & 6 — CONTRIBUTION, ALERTS & SYSTEM STATUS ═════ */}
+      <div className={styles.bottomSection}>
+        <div className={styles.leftCol}>
+          <InstrumentCard label="POWER SOURCE CONTRIBUTION">
+            <PowerContribution />
+          </InstrumentCard>
 
-        <InstrumentCard label="ALTITUDE · TIME">
-          <AltitudeChart />
-        </InstrumentCard>
-      </section>
+          <InstrumentCard label="SYSTEM STATUS">
+            <SystemStatusStrip />
+          </InstrumentCard>
+        </div>
 
-      {/* ════════════════ ROW 6 — SYSTEM STATUS ═════════════ */}
-      <section className={styles.systemRow}>
-        <InstrumentCard label="SYSTEM STATUS">
-          <SystemStatusStrip />
-        </InstrumentCard>
-
-        <InstrumentCard label="ALERTS">
-          <AlertsSummary />
-        </InstrumentCard>
-      </section>
+        <div className={styles.rightCol}>
+          <InstrumentCard label="ALERTS" className={styles.alertsCardTall}>
+            <AlertsSummary />
+          </InstrumentCard>
+        </div>
+      </div>
 
     </div>
   );

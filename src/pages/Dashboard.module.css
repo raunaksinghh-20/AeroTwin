@@ -123,12 +123,12 @@
 
 
 /* ════════════════════════════════════════════════════════
-   ROW 3 — ATTITUDE + ALTITUDE CHART
+   ROW 3 — ATTITUDE / THROTTLE + MOTOR POWER
    ════════════════════════════════════════════════════════ */
 
 .flightRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: var(--grid-gutter);
 }
 
@@ -138,7 +138,7 @@
 }
 
 .altitudeCard {
-  grid-column: span 2;
+  grid-column: span 1;
   min-height: 200px;
 }
 
@@ -147,16 +147,39 @@
    ROW 4 — CONTRIBUTION + GAUGES
    ════════════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════════════════
+   ROW 4 & 5 — CONTRIBUTION, SYSTEM STATUS & ALERTS
+   ════════════════════════════════════════════════════════ */
+
+.bottomSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--grid-gutter);
+  align-items: stretch;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-gutter);
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.alertsCardTall {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .gaugeRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--grid-gutter);
 }
-
-
-/* ════════════════════════════════════════════════════════
-   ROW 5 — SYSTEM STATUS + ALERTS
-   ════════════════════════════════════════════════════════ */
 
 .systemRow {
   display: grid;

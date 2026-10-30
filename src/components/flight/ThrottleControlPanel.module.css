@@ -1,0 +1,113 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-2) var(--space-3);
+  box-sizing: border-box;
+}
+
+.throttleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-instrument);
+  text-transform: uppercase;
+}
+
+.valueBadge {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--panel-radius-sm, 4px);
+  padding: 2px 8px;
+  min-width: 48px;
+  text-align: right;
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.slider:hover {
+  border-color: var(--accent-cyan);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  border: 2px solid var(--bg-panel);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+  transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  border: 2px solid var(--bg-panel);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+  transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover,
+.slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+}
+
+.slider::-moz-range-thumb:hover,
+.slider::-moz-range-thumb:active {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+}
+
+.scaleLabels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+

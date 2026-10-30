@@ -69,6 +69,26 @@ export interface Telemetry {
   dcBus: DcBusData;
   signal: SignalData;
   motor: MotorData;
+
+  /* ── Extended fields from ESP32 binary protocol ────────── */
+  /** Fuel cell power output (Watts), from binary packet bytes 0-1 */
+  fcPower?: number;
+  /** Battery power output (Watts), from binary packet bytes 2-3 */
+  batteryPower?: number;
+  /** DC bus total power (Watts), from binary packet bytes 4-5 */
+  dcBusPower?: number;
+  /** FC contribution percentage, from binary packet bytes 8-9 */
+  fcContribution?: number;
+  /** Battery contribution percentage, from binary packet bytes 10-11 */
+  batteryContribution?: number;
+  /** Fuel cell warning flag (0 = OK), from binary packet byte 12 */
+  fcWarning?: number;
+  /** Battery warning flag (0 = OK), from binary packet byte 13 */
+  batteryWarning?: number;
+  /** Motor warning flag (0 = OK), from binary packet byte 14 */
+  motorWarning?: number;
+  /** Bus warning flag (0 = OK), from binary packet byte 15 */
+  busWarning?: number;
 }
 
 
