@@ -40,11 +40,11 @@ export async function getBackendUdpPort(): Promise<number | null> {
 
 /**
  * Broadcasts a 2-byte command packet [commandType, value] to port 8889.
- * @param commandType 0 = Common Throttle, 1 = Rear Throttle, 2 = Solenoid Valve
- * @param value Throttle percentage (0-100) or Solenoid state (0 = OFF, 1 = ON)
+ * @param commandType 0 = Common Throttle, 1 = Rear Throttle, 2 = Solenoid Valve, 3 = Arm
+ * @param value Throttle percentage (0-100), Solenoid state (0 = OFF, 1 = ON), or Arm state (0 = DISARM, 1 = ARM)
  */
 export async function sendCommand(
-  commandType: 0 | 1 | 2,
+  commandType: 0 | 1 | 2 | 3,
   value: number
 ): Promise<void> {
   try {

@@ -61,20 +61,20 @@ fn parse_struct_telemetry(buf: &[u8], len: usize) -> Option<EspTelemetry> {
     };
 
     Some(EspTelemetry {
-        battery_voltage:      read_f32(0),
-        battery_current:      read_f32(4),
-        fc_voltage:           read_f32(8),
-        fc_current:           read_f32(12),
-        dc_bus_voltage:       read_f32(16),
-        dc_bus_current:       read_f32(20),
-        motor_power:          read_f32(24),
-        battery_percent:      read_f32(28),
-        h2_percent:           read_f32(32),
+        battery_voltage: read_f32(0),
+        battery_current: read_f32(4),
+        fc_voltage: read_f32(8),
+        fc_current: read_f32(12),
+        dc_bus_voltage: read_f32(16),
+        dc_bus_current: read_f32(20),
+        motor_power: read_f32(24),
+        battery_percent: read_f32(28),
+        h2_percent: read_f32(32),
         battery_contribution: read_f32(36),
-        fc_contribution:      read_f32(40),
-        battery_power:        read_f32(44),
-        fc_power:             read_f32(48),
-        dc_bus_power:         read_f32(52),
+        fc_contribution: read_f32(40),
+        battery_power: read_f32(44),
+        fc_power: read_f32(48),
+        dc_bus_power: read_f32(52),
     })
 }
 
@@ -95,7 +95,10 @@ fn handle_udp_data(app_handle: &AppHandle, buffer: &[u8], size: usize) {
         // Successfully parsed struct telemetry — serialize as JSON and emit
         match serde_json::to_string(&telemetry) {
             Ok(json) => {
-                println!("[ESP32] Telemetry parsed: V={:.2} I={:.2} P={:.2}", telemetry.dc_bus_voltage, telemetry.dc_bus_current, telemetry.dc_bus_power);
+                println!(
+                    "[ESP32] Telemetry parsed: V={:.2} I={:.2} P={:.2}",
+                    telemetry.dc_bus_voltage, telemetry.dc_bus_current, telemetry.dc_bus_power
+                );
                 if let Err(error) = app_handle.emit("udp-telemetry", &json) {
                     eprintln!("Failed to emit telemetry: {}", error);
                 }
@@ -114,7 +117,11 @@ fn handle_udp_data(app_handle: &AppHandle, buffer: &[u8], size: usize) {
 }
 
 #[tauri::command]
-fn change_udp_port(app_handle: AppHandle, state: State<'_, UdpState>, port: u16) -> Result<u16, String> {
+fn change_udp_port(
+    app_handle: AppHandle,
+    state: State<'_, UdpState>,
+    port: u16,
+) -> Result<u16, String> {
     let current = state.current_port.load(Ordering::Relaxed);
     if current == port {
         // Socket is already bound and running on this port
@@ -169,6 +176,8 @@ fn send_command(command_type: u8, value: u8) -> Result<(), String> {
     //   0 = Common Throttle (0..100)
     //   1 = Rear Throttle (0..100)
     //   2 = Solenoid Valve (0 = OFF / CLOSED, 1 = ON / OPEN)
+    //   3 = Arm (0 = DISARM, 1 = ARM)
+
     // Packet is 2 bytes: [command_type, value]
     let packet = [command_type, value];
 
@@ -200,8 +209,11 @@ pub fn run() {
         .setup(move |app| {
             let app_handle = app.handle().clone();
             // Start default UDP listener on port 8888
-            let socket = UdpSocket::bind("0.0.0.0:8888").expect("Failed to bind initial UDP socket");
-            socket.set_read_timeout(Some(Duration::from_millis(500))).ok();
+            let socket =
+                UdpSocket::bind("0.0.0.0:8888").expect("Failed to bind initial UDP socket");
+            socket
+                .set_read_timeout(Some(Duration::from_millis(500)))
+                .ok();
 
             let port_ref = initial_port;
             thread::spawn(move || {
@@ -230,7 +242,11 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_udp_port, change_udp_port, send_command])
+        .invoke_handler(tauri::generate_handler![
+            get_udp_port,
+            change_udp_port,
+            send_command
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
