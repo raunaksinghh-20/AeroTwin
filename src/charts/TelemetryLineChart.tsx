@@ -115,11 +115,11 @@ function TelemetryLineChart({
   showTooltip = true,
   label,
 }: TelemetryLineChartProps) {
-  const latestTime = data.length > 0 ? data[data.length - 1].time : 0;
-
   // Filter and compute relative time points (-30 to 0) relative to the latest data point
   const chartData = useMemo(() => {
     if (data.length === 0) return [];
+
+    const latestTime = data[data.length - 1].time;
 
     // Only keep data points recorded within the 30-second window
     const filtered = data.filter((d) => d.time >= latestTime - 30);
@@ -129,7 +129,8 @@ function TelemetryLineChart({
 
     for (let i = 0; i < filtered.length; i++) {
       const point = filtered[i];
-      const relTime = point.time - latestTime;
+      // Quantize to avoid micro float jitter and enforce strict monotonicity
+      const relTime = Number((point.time - latestTime).toFixed(2));
 
       if (i > 0) {
         const prevPoint = filtered[i - 1];
@@ -137,20 +138,26 @@ function TelemetryLineChart({
         // insert a null point to break the line graph segment cleanly.
         if (point.time - prevPoint.time > 3) {
           result.push({
-            relTime: prevPoint.time - latestTime + 0.01,
+            relTime: Number((prevPoint.time - latestTime + 0.05).toFixed(2)),
             value: null,
           });
         }
       }
 
-      result.push({
-        relTime,
-        value: point.value,
-      });
+      // Avoid duplicate x coordinates
+      if (result.length === 0 || result[result.length - 1].relTime < relTime) {
+        result.push({
+          relTime,
+          value: point.value,
+        });
+      } else {
+        // If same timestamp, update with latest value
+        result[result.length - 1].value = point.value;
+      }
     }
 
     return result;
-  }, [data, latestTime]);
+  }, [data]);
 
   return (
     <div className={chartStyles.wrap}>
@@ -184,13 +191,19 @@ function TelemetryLineChart({
           />
 
           <YAxis
-            domain={yDomain ?? ["auto", "auto"]}
+            domain={yDomain ?? [(dataMin: number) => Math.min(0, dataMin), (dataMax: number) => Math.max(dataMax * 1.15, 1)]}
             stroke="var(--line-rivet)"
             tick={{ fill: "var(--text-instrument)", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
-            width={36}
-            tickFormatter={(v: number) => v.toFixed(0)}
+            width={40}
+            tickFormatter={(v: number) => {
+              if (v === 0) return "0";
+              if (Math.abs(v) < 0.1) return v.toFixed(3);
+              if (Math.abs(v) < 1) return v.toFixed(2);
+              if (Math.abs(v) < 10) return v.toFixed(1);
+              return v.toFixed(0);
+            }}
           />
 
           {showTooltip && (
@@ -204,7 +217,7 @@ function TelemetryLineChart({
           )}
 
           <Line
-            type="monotone"
+            type="linear"
             dataKey="value"
             stroke={color}
             strokeWidth={1.5}

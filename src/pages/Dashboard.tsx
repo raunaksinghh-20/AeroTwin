@@ -10,7 +10,6 @@ import {
   Battery,
   Flame,
   Zap,
-  WifiOff,
 } from "lucide-react";
 
 import { useTelemetryStore } from "../store/telemetryStore";
@@ -83,26 +82,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className={`${styles.dashboard} ${connectionStatus !== "connected" ? styles.noScroll : ""}`}>
-
-      {/* ── Signal Lost Backdrop Overlay ───────────────────── */}
-      {connectionStatus !== "connected" && (
-        <div className={styles.noSignalOverlay}>
-          <div className={styles.noSignalCard}>
-            <div className={styles.noSignalTitle}>
-              <WifiOff size={20} strokeWidth={2} />
-              NO TELEMETRY SIGNAL
-            </div>
-            <div className={styles.noSignalDesc}>
-              Telemetry stream lost or ESP32 ground unit offline. Ground control station is listening for UDP telemetry broadcast on port <strong>8888</strong>.
-            </div>
-            <div className={styles.noSignalBadge}>
-              SEARCHING FOR UDP BROADCAST (:8888)...
-            </div>
-          </div>
-        </div>
-      )}
-
+    <div className={styles.dashboard}>
       {/* ════════════════ ROW 1 — STAT CARDS ════════════════ */}
       <section className={styles.statRow}>
         <SolenoidValveCard />

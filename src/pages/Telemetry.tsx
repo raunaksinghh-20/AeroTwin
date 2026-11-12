@@ -472,7 +472,7 @@ export default function Telemetry() {
                   </div>
                 </div>
                 <div className={styles.chartWrap}>
-                  <TelemetryLineChart data={history.batteryVoltage} color="var(--accent-cyan)" unit="V" />
+                  <TelemetryLineChart data={history.batteryVoltage} color="var(--accent-cyan)" unit="V" yDomain={[0, 15]} />
                 </div>
               </div>
             </InstrumentCard>
@@ -520,7 +520,7 @@ export default function Telemetry() {
                   </div>
                 </div>
                 <div className={styles.chartWrap}>
-                  <TelemetryLineChart data={history.fuelCellVoltage} color="var(--status-nominal)" unit="V" />
+                  <TelemetryLineChart data={history.fuelCellVoltage} color="var(--status-nominal)" unit="V" yDomain={[0, 15]} />
                 </div>
               </div>
             </InstrumentCard>
@@ -568,7 +568,7 @@ export default function Telemetry() {
                   </div>
                 </div>
                 <div className={styles.chartWrap}>
-                  <TelemetryLineChart data={history.dcBusVoltage} color="var(--accent-amber)" unit="V" />
+                  <TelemetryLineChart data={history.dcBusVoltage} color="var(--accent-amber)" unit="V" yDomain={[0, 15]} />
                 </div>
               </div>
             </InstrumentCard>

@@ -15,7 +15,9 @@ export default function BatteryPanel() {
   const voltageHistory = useTelemetryStore((s) => s.history.batteryVoltage);
   const currentHistory = useTelemetryStore((s) => s.history.batteryCurrent);
 
-  const power = battery.voltage * battery.current;
+  const power =
+    useTelemetryStore((s) => s.current.batteryPower) ??
+    (battery.voltage * battery.current);
 
   return (
     <div className={styles.panel}>
@@ -37,13 +39,14 @@ export default function BatteryPanel() {
           data={voltageHistory}
           color="var(--chart-battery)"
           unit="V"
-          height={100}
+          height={85}
+          yDomain={[0, 15]}
         />
         <TelemetryLineChart
           data={currentHistory}
           color="var(--status-caution)"
           unit="A"
-          height={100}
+          height={85}
         />
       </div>
 

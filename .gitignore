@@ -1,15 +1,31 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
 
 # Frontend build output
 dist/
 dist-ssr/
+build/
+out/
+.next/
+.turbo/
 
 # Tauri / Rust build artifacts
+target/
 src-tauri/target/
-
-# Rust backup files
+src-tauri/gen/
 **/*.rs.bk
+
+# Generated binaries & installers
+*.exe
+*.msi
+*.dll
+*.app
+*.dmg
+*.deb
+*.rpm
+*.AppImage
 
 # Logs
 logs/
@@ -24,12 +40,9 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
-
-# Local development
 *.local
 
-# Editor directories and files
-.vscode
+# Editor directories and temporary files
 .vscode/*
 !.vscode/extensions.json
 .idea/
@@ -38,10 +51,10 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.bak
 
-# macOS
+# Operating System files
 .DS_Store
-
-# Windows
+**/.DS_Store
 Thumbs.db
 Desktop.ini

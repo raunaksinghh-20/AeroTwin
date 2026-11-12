@@ -6,6 +6,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow: visible;
 }
 
 
@@ -16,7 +17,7 @@
   align-items: center;
   gap: var(--space-4);
 
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   flex-wrap: wrap;
 }
 
@@ -45,11 +46,11 @@
 
 .charts {
   flex: 1;
-  min-height: 0;
-
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-4);
+  overflow: visible;
+  padding: 4px 0;
 }
 
 

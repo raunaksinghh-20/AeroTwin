@@ -95,6 +95,7 @@ fn handle_udp_data(app_handle: &AppHandle, buffer: &[u8], size: usize) {
         // Successfully parsed struct telemetry — serialize as JSON and emit
         match serde_json::to_string(&telemetry) {
             Ok(json) => {
+                println!("[ESP32] Telemetry parsed: V={:.2} I={:.2} P={:.2}", telemetry.dc_bus_voltage, telemetry.dc_bus_current, telemetry.dc_bus_power);
                 if let Err(error) = app_handle.emit("udp-telemetry", &json) {
                     eprintln!("Failed to emit telemetry: {}", error);
                 }
@@ -163,10 +164,13 @@ fn change_udp_port(app_handle: AppHandle, state: State<'_, UdpState>, port: u16)
 }
 
 #[tauri::command]
-fn send_throttle_command(throttle_type: u8, value: u8) -> Result<(), String> {
-    // throttle_type: 0 = Common Throttle, 1 = Rear Throttle
-    // Packet is 2 bytes: [throttle_type, value]
-    let packet = [throttle_type, value];
+fn send_command(command_type: u8, value: u8) -> Result<(), String> {
+    // command_type:
+    //   0 = Common Throttle (0..100)
+    //   1 = Rear Throttle (0..100)
+    //   2 = Solenoid Valve (0 = OFF / CLOSED, 1 = ON / OPEN)
+    // Packet is 2 bytes: [command_type, value]
+    let packet = [command_type, value];
 
     let socket = UdpSocket::bind("0.0.0.0:0")
         .map_err(|e| format!("Failed to bind sending UDP socket: {}", e))?;
@@ -226,7 +230,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_udp_port, change_udp_port, send_throttle_command])
+        .invoke_handler(tauri::generate_handler![get_udp_port, change_udp_port, send_command])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

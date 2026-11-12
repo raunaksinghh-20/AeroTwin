@@ -15,7 +15,9 @@ export default function FuelCellPanel() {
   const voltageHistory = useTelemetryStore((s) => s.history.fuelCellVoltage);
   const currentHistory = useTelemetryStore((s) => s.history.fuelCellCurrent);
 
-  const power = fuelCell.voltage * fuelCell.current;
+  const power =
+    useTelemetryStore((s) => s.current.fcPower) ??
+    (fuelCell.voltage * fuelCell.current);
 
   return (
     <div className={styles.panel}>
@@ -37,13 +39,14 @@ export default function FuelCellPanel() {
           data={voltageHistory}
           color="var(--chart-fuel-cell)"
           unit="V"
-          height={100}
+          height={85}
+          yDomain={[0, 15]}
         />
         <TelemetryLineChart
           data={currentHistory}
           color="var(--status-caution)"
           unit="A"
-          height={100}
+          height={85}
         />
       </div>
 

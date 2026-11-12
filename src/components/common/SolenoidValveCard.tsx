@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Disc } from "lucide-react";
 import { useTelemetryStore } from "../../store/telemetryStore";
+import { sendCommand } from "../../lib/tauriCommands";
 import styles from "./SolenoidValveCard.module.css";
 
 interface SolenoidValveCardProps {
@@ -17,6 +18,7 @@ export default function SolenoidValveCard({ onToggle }: SolenoidValveCardProps) 
   useEffect(() => {
     if (prevConnectionStatus.current !== "connected" && connectionStatus === "connected") {
       setIsOpen(false);
+      sendCommand(2, 0); // Turn OFF on reconnect
       onToggle?.(false);
     }
     prevConnectionStatus.current = connectionStatus;
@@ -25,6 +27,7 @@ export default function SolenoidValveCard({ onToggle }: SolenoidValveCardProps) 
   const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nextState = e.target.checked;
     setIsOpen(nextState);
+    sendCommand(2, nextState ? 1 : 0); // command_type 2: 1 = ON, 0 = OFF
     onToggle?.(nextState);
   };
 

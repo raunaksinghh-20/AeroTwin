@@ -15,7 +15,9 @@ export default function DcBusPanel() {
   const voltageHistory = useTelemetryStore((s) => s.history.dcBusVoltage);
   const currentHistory = useTelemetryStore((s) => s.history.dcBusCurrent);
 
-  const power = dcBus.voltage * dcBus.current;
+  const power =
+    useTelemetryStore((s) => s.current.dcBusPower) ??
+    (dcBus.voltage * dcBus.current);
 
   return (
     <div className={styles.panel}>
@@ -37,13 +39,14 @@ export default function DcBusPanel() {
           data={voltageHistory}
           color="var(--chart-dc-bus)"
           unit="V"
-          height={100}
+          height={85}
+          yDomain={[0, 15]}
         />
         <TelemetryLineChart
           data={currentHistory}
           color="var(--status-critical)"
           unit="A"
-          height={100}
+          height={85}
         />
       </div>
 

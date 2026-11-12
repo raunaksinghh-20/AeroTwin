@@ -39,21 +39,29 @@ export async function getBackendUdpPort(): Promise<number | null> {
 }
 
 /**
- * Broadcasts a 2-byte throttle packet [throttleType, value] to port 8889.
- * @param throttleType 0 for Common Throttle, 1 for Rear Throttle
- * @param value Throttle percentage (0-100)
+ * Broadcasts a 2-byte command packet [commandType, value] to port 8889.
+ * @param commandType 0 = Common Throttle, 1 = Rear Throttle, 2 = Solenoid Valve
+ * @param value Throttle percentage (0-100) or Solenoid state (0 = OFF, 1 = ON)
  */
-export async function sendThrottleCommand(
-  throttleType: 0 | 1,
+export async function sendCommand(
+  commandType: 0 | 1 | 2,
   value: number
 ): Promise<void> {
   try {
-    await invoke("send_throttle_command", {
-      throttleType,
-      value: Math.round(Math.max(0, Math.min(100, value))),
+    await invoke("send_command", {
+      commandType,
+      value: Math.round(Math.max(0, Math.min(255, value))),
     });
   } catch (err) {
-    console.warn("[Tauri UDP] Failed to send throttle command:", err);
+    console.warn("[Tauri UDP] Failed to send command:", err);
   }
 }
+
+/**
+ * Backward compatibility alias for throttle commands.
+ */
+export const sendThrottleCommand = (
+  throttleType: 0 | 1,
+  value: number
+) => sendCommand(throttleType, value);
 
