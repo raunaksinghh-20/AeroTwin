@@ -70,6 +70,14 @@ export default function ThrottleControlPanel({
     onRearThrottleChange?.(rearThrottle);
   };
 
+  const handleStepRear = (delta: number) => {
+    if (!isArmed) return;
+    const nextVal = Math.min(100, Math.max(0, rearThrottle + delta));
+    setRearThrottle(nextVal);
+    sendThrottleCommand(1, nextVal);
+    onRearThrottleChange?.(nextVal);
+  };
+
   const handleCommonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isArmed) return;
     const val = Number(e.target.value);
@@ -80,6 +88,14 @@ export default function ThrottleControlPanel({
     if (!isArmed) return;
     sendThrottleCommand(0, commonThrottle);
     onCommonThrottleChange?.(commonThrottle);
+  };
+
+  const handleStepCommon = (delta: number) => {
+    if (!isArmed) return;
+    const nextVal = Math.min(100, Math.max(0, commonThrottle + delta));
+    setCommonThrottle(nextVal);
+    sendThrottleCommand(0, nextVal);
+    onCommonThrottleChange?.(nextVal);
   };
 
   return (
@@ -117,9 +133,33 @@ export default function ThrottleControlPanel({
       <div className={`${styles.throttleGroup} ${!isArmed ? styles.disabled : ""}`}>
         <div className={styles.headerRow}>
           <span className={styles.label}>Rear Throttle</span>
-          <span className={`${styles.valueBadge} ${!isArmed ? styles.disabled : ""}`}>
-            {rearThrottle}%
-          </span>
+          <div className={styles.valueControlGroup}>
+            <div className={styles.stepButtonGroup}>
+              <button
+                type="button"
+                className={styles.stepButton}
+                disabled={!isArmed || rearThrottle <= 0}
+                onClick={() => handleStepRear(-1)}
+                title="Decrease Rear Throttle by 1%"
+                aria-label="Decrease Rear Throttle by 1%"
+              >
+                -1
+              </button>
+              <button
+                type="button"
+                className={styles.stepButton}
+                disabled={!isArmed || rearThrottle >= 100}
+                onClick={() => handleStepRear(1)}
+                title="Increase Rear Throttle by 1%"
+                aria-label="Increase Rear Throttle by 1%"
+              >
+                +1
+              </button>
+            </div>
+            <span className={`${styles.valueBadge} ${!isArmed ? styles.disabled : ""}`}>
+              {rearThrottle}%
+            </span>
+          </div>
         </div>
         <div className={styles.sliderRow}>
           <input
@@ -154,9 +194,33 @@ export default function ThrottleControlPanel({
       <div className={`${styles.throttleGroup} ${!isArmed ? styles.disabled : ""}`}>
         <div className={styles.headerRow}>
           <span className={styles.label}>Common Throttle</span>
-          <span className={`${styles.valueBadge} ${!isArmed ? styles.disabled : ""}`}>
-            {commonThrottle}%
-          </span>
+          <div className={styles.valueControlGroup}>
+            <div className={styles.stepButtonGroup}>
+              <button
+                type="button"
+                className={styles.stepButton}
+                disabled={!isArmed || commonThrottle <= 0}
+                onClick={() => handleStepCommon(-1)}
+                title="Decrease Common Throttle by 1%"
+                aria-label="Decrease Common Throttle by 1%"
+              >
+                -1
+              </button>
+              <button
+                type="button"
+                className={styles.stepButton}
+                disabled={!isArmed || commonThrottle >= 100}
+                onClick={() => handleStepCommon(1)}
+                title="Increase Common Throttle by 1%"
+                aria-label="Increase Common Throttle by 1%"
+              >
+                +1
+              </button>
+            </div>
+            <span className={`${styles.valueBadge} ${!isArmed ? styles.disabled : ""}`}>
+              {commonThrottle}%
+            </span>
+          </div>
         </div>
         <div className={styles.sliderRow}>
           <input

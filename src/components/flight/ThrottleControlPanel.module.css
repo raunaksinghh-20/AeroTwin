@@ -119,6 +119,51 @@
   justify-content: space-between;
 }
 
+.valueControlGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.stepButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepButton {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-instrument, #94a3b8);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line-rivet);
+  border-radius: var(--panel-radius-sm, 4px);
+  padding: 2px 7px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+}
+
+.stepButton:hover:not(:disabled) {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
+}
+
+.stepButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.stepButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--line-rivet);
+  color: var(--text-muted);
+}
+
 .label {
   font-family: var(--font-display);
   font-size: 12px;
