@@ -10,20 +10,22 @@ export interface FlightData {
 
 /** LiPo battery pack. */
 export interface BatteryData {
-  voltage: number;      // V
-  current: number;      // A
-  percentage: number;   // 0–100
-  temperature: number;  // °C
+  voltage: number;         // V
+  current: number;         // A
+  percentage: number;      // 0–100
+  temperature: number;     // °C
+  timeRemaining?: number;  // hours remaining (from ESP32 estimation; undefined = unknown)
 }
 
 
 /** Hydrogen fuel cell. */
 export interface FuelCellData {
-  voltage: number;        // V
-  current: number;        // A
-  temperature: number;    // °C
-  tankPercentage: number; // 0–100 % (H2 fuel level)
-  pressure: number;       // bar
+  voltage: number;         // V
+  current: number;         // A
+  temperature: number;     // °C
+  tankPercentage: number;  // 0–100 % (H2 fuel level)
+  pressure: number;        // bar
+  h2TimeRemaining?: number; // hours remaining (from ESP32 estimation; undefined = unknown)
 }
 
 

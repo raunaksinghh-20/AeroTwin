@@ -23,7 +23,7 @@ use tauri::{AppHandle, Emitter, State};
 ///   float fcPower;
 ///   float dcBusPower;
 /// };
-const STRUCT_TELEMETRY_SIZE: usize = 14 * 4; // 56 bytes
+const STRUCT_TELEMETRY_SIZE: usize = 16 * 4; // 64 bytes (14 original + timeRemaining + h2TimeRemaining)
 
 #[derive(serde::Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -42,9 +42,13 @@ struct EspTelemetry {
     battery_power: f32,
     fc_power: f32,
     dc_bus_power: f32,
+    /// Estimated battery time remaining in hours (sent by ESP32; 0 = unknown)
+    time_remaining: f32,
+    /// Estimated H2 fuel time remaining in hours (sent by ESP32; 0 = unknown)
+    h2_time_remaining: f32,
 }
 
-/// Parse the ESP32 56-byte TelemetryData struct (14 little-endian 32-bit IEEE 754 floats).
+/// Parse the ESP32 64-byte TelemetryData struct (16 little-endian 32-bit IEEE 754 floats).
 fn parse_struct_telemetry(buf: &[u8], len: usize) -> Option<EspTelemetry> {
     if len < STRUCT_TELEMETRY_SIZE {
         return None;
@@ -75,6 +79,8 @@ fn parse_struct_telemetry(buf: &[u8], len: usize) -> Option<EspTelemetry> {
         battery_power: read_f32(44),
         fc_power: read_f32(48),
         dc_bus_power: read_f32(52),
+        time_remaining: read_f32(56),
+        h2_time_remaining: read_f32(60),
     })
 }
 

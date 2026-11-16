@@ -24,6 +24,10 @@ interface EspStructTelemetry {
   batteryPower: number;
   fcPower: number;
   dcBusPower: number;
+  /** Estimated battery hours remaining, 0 = not yet available from ESP32 */
+  timeRemaining: number;
+  /** Estimated H2 fuel hours remaining, 0 = not yet available from ESP32 */
+  h2TimeRemaining: number;
 }
 
 
@@ -43,18 +47,20 @@ function mapEspToTelemetry(esp: EspStructTelemetry): Telemetry {
     signal:   { rssi: -45 },
 
     battery: {
-      voltage:     esp.batteryVoltage,
-      current:     esp.batteryCurrent,
-      percentage:  batPct,
-      temperature: 25,
+      voltage:       esp.batteryVoltage,
+      current:       esp.batteryCurrent,
+      percentage:    batPct,
+      temperature:   25,
+      timeRemaining: esp.timeRemaining > 0 ? esp.timeRemaining : undefined,
     },
 
     fuelCell: {
-      voltage:        esp.fcVoltage,
-      current:        esp.fcCurrent,
-      temperature:    35,
-      tankPercentage: h2Pct,
-      pressure:       1.5,
+      voltage:         esp.fcVoltage,
+      current:         esp.fcCurrent,
+      temperature:     35,
+      tankPercentage:  h2Pct,
+      pressure:        1.5,
+      h2TimeRemaining: esp.h2TimeRemaining > 0 ? esp.h2TimeRemaining : undefined,
     },
 
     dcBus: {

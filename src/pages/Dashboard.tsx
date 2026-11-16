@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   const liveStatus = connectionStatus === "connected" ? "live" as const : "lost" as const;
 
-  // Battery bar for StatCard
+  // Battery bar + time-remaining label for StatCard
   const batteryBar = (
     <div className={styles.battBar}>
       <div
@@ -62,6 +62,16 @@ export default function Dashboard() {
       />
     </div>
   );
+
+  const batteryTimeLabel =
+    battery.timeRemaining != null
+      ? `${battery.timeRemaining.toFixed(1)} hrs remaining`
+      : "0 hrs remaining";
+
+  const h2TimeLabel =
+    fuelCell.h2TimeRemaining != null
+      ? `${fuelCell.h2TimeRemaining.toFixed(1)} hrs remaining`
+      : "0 hrs remaining";
 
   // H2 Fuel Tank bar for StatCard
   const h2TankBar = (
@@ -97,14 +107,24 @@ export default function Dashboard() {
           value={battery.percentage.toFixed(0)}
           unit="%"
           icon={Battery}
-          sub={batteryBar}
+          sub={
+            <>
+              <span className={styles.battTimeLabel}>{batteryTimeLabel}</span>
+              {batteryBar}
+            </>
+          }
         />
         <StatCard
           label="H₂ TANK · %"
           value={fuelCell.tankPercentage.toFixed(0)}
           unit="%"
           icon={Flame}
-          sub={h2TankBar}
+          sub={
+            <>
+              <span className={styles.battTimeLabel}>{h2TimeLabel}</span>
+              {h2TankBar}
+            </>
+          }
         />
         <EmergencyAbortCard />
       </section>
