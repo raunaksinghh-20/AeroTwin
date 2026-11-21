@@ -49,7 +49,7 @@ export const DC_BUS_THRESHOLDS = {
   current: { caution: 45, critical: 55 },
 } as const;
 
-const SIGNAL_THRESHOLDS = {
+export const SIGNAL_THRESHOLDS = {
   get rssi() {
     let s;
     try {

@@ -95,10 +95,11 @@ AeroTwin/
 │   │   └── main.rs           # Entry point for desktop binary
 │   └── Cargo.toml            # Rust dependencies & metadata
 ├── src/                      # React Frontend Application
+│   ├── assets/               # 3D GLTF models & graphic assets
 │   ├── charts/               # Reusable chart components & sparklines
 │   ├── components/
 │   │   ├── common/           # Live indicators, metrics badges, HUDs
-│   │   ├── flight/           # Attitude ring, altitude chart, throttle control
+│   │   ├── flight/           # Attitude ring, altitude chart, signal panels
 │   │   ├── layout/           # AppShell, Sidebar, Header layout
 │   │   ├── power/            # Battery, Fuel Cell, DC Bus & Motor panels
 │   │   ├── twin/             # 3D Drone Model, Viewport, Radar Grid, Propellers

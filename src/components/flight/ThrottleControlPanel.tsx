@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { useTelemetryStore } from "../../store/telemetryStore";
-import { sendCommand } from "../../lib/tauriCommands";
+import { sendCommand, sendThrottleCommand } from "../../lib/tauriCommands";
 import styles from "./ThrottleControlPanel.module.css";
 
 interface ThrottleControlPanelProps {
@@ -33,8 +33,8 @@ export default function ThrottleControlPanel({
       setRearThrottle(0);
       setCommonThrottle(0);
       sendCommand(3, 0); // Send DISARM (3, 0)
-      sendCommand(0, 0);
-      sendCommand(1, 0);
+      sendThrottleCommand(0, 0);
+      sendThrottleCommand(1, 0);
       onCommonThrottleChange?.(0);
       onRearThrottleChange?.(0);
     }
@@ -48,8 +48,8 @@ export default function ThrottleControlPanel({
       setRearThrottle(0);
       setCommonThrottle(0);
       sendCommand(3, 0); // command_type 3, value 0 (DISARM)
-      sendCommand(0, 0);
-      sendCommand(1, 0);
+      sendThrottleCommand(0, 0);
+      sendThrottleCommand(1, 0);
       onCommonThrottleChange?.(0);
       onRearThrottleChange?.(0);
     } else {
@@ -66,7 +66,7 @@ export default function ThrottleControlPanel({
 
   const handleRearCommit = () => {
     if (!isArmed) return;
-    sendCommand(1, rearThrottle);
+    sendThrottleCommand(1, rearThrottle);
     onRearThrottleChange?.(rearThrottle);
   };
 
@@ -74,7 +74,7 @@ export default function ThrottleControlPanel({
     if (!isArmed) return;
     const nextVal = Math.min(100, Math.max(0, rearThrottle + delta));
     setRearThrottle(nextVal);
-    sendCommand(1, nextVal);
+    sendThrottleCommand(1, nextVal);
     onRearThrottleChange?.(nextVal);
   };
 
@@ -86,7 +86,7 @@ export default function ThrottleControlPanel({
 
   const handleCommonCommit = () => {
     if (!isArmed) return;
-    sendCommand(0, commonThrottle);
+    sendThrottleCommand(0, commonThrottle);
     onCommonThrottleChange?.(commonThrottle);
   };
 
@@ -94,7 +94,7 @@ export default function ThrottleControlPanel({
     if (!isArmed) return;
     const nextVal = Math.min(100, Math.max(0, commonThrottle + delta));
     setCommonThrottle(nextVal);
-    sendCommand(0, nextVal);
+    sendThrottleCommand(0, nextVal);
     onCommonThrottleChange?.(nextVal);
   };
 

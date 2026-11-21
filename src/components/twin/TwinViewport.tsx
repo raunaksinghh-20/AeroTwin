@@ -70,12 +70,12 @@ const SCENE_THEMES: Record<ResolvedTheme, SceneTheme> = {
 
 /* ── Camera presets ────────────────────────────────────── */
 
-interface CameraPreset {
+export interface CameraPreset {
   position: [number, number, number];
   target: [number, number, number];
 }
 
-const CAMERA_PRESETS: Record<string, CameraPreset> = {
+export const CAMERA_PRESETS: Record<string, CameraPreset> = {
   perspective: { position: [6, 4, 6],     target: [0, 0, 0] },
   top:         { position: [0, 10, 0.01],  target: [0, 0, 0] },
   bottom:      { position: [0, -10, 0.01], target: [0, 0, 0] },

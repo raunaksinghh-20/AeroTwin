@@ -313,6 +313,13 @@ function mergeBufferGeometries(geometries: THREE.BufferGeometry[]): THREE.Buffer
 }
 
 /**
+ * Creates the rear (tail) propeller geometry — same shape, smaller scale.
+ */
+export function createRearPropellerGeometry(scale: number = 1): THREE.BufferGeometry {
+  return createPropellerGeometry(scale);
+}
+
+/**
  * Creates a circular disc geometry for high-speed rotor motion blur.
  * Outer radius matches the 127-unit blade span.
  */
