@@ -90,11 +90,6 @@ struct UdpState {
     current_port: Arc<AtomicU16>,
 }
 
-#[tauri::command]
-fn get_udp_port(state: State<'_, UdpState>) -> u16 {
-    state.current_port.load(Ordering::Relaxed)
-}
-
 /// Handles incoming UDP buffer: parses 56-byte TelemetryData struct, falls back to raw UTF-8 forward.
 fn handle_udp_data(app_handle: &AppHandle, buffer: &[u8], size: usize) {
     if let Some(telemetry) = parse_struct_telemetry(buffer, size) {
@@ -249,7 +244,6 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_udp_port,
             change_udp_port,
             send_command
         ])

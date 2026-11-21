@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AlertOctagon, Power, AlertTriangle } from "lucide-react";
-import { sendThrottleCommand } from "../../lib/tauriCommands";
+import { sendCommand } from "../../lib/tauriCommands";
 import styles from "./EmergencyAbortCard.module.css";
 
 interface EmergencyAbortCardProps {
@@ -24,8 +24,8 @@ export default function EmergencyAbortCard({ onAbort }: EmergencyAbortCardProps)
     setAborted(true);
     setShowConfirmModal(false);
     // Send zero throttle to both throttles immediately
-    sendThrottleCommand(0, 0);
-    sendThrottleCommand(1, 0);
+    sendCommand(0, 0);
+    sendCommand(1, 0);
     onAbort?.();
   };
 
