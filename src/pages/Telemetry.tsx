@@ -16,7 +16,7 @@ import type { Telemetry, TelemetryPoint } from "../types/telemetry";
 import styles from "./Telemetry.module.css";
 
 
-type CategoryTab = "ALL" | "FLIGHT" | "GPS" | "BATTERY" | "FUEL_CELL" | "DC_BUS" | "COMMS";
+type CategoryTab = "ALL" | "GPS" | "BATTERY" | "FUEL_CELL" | "DC_BUS" | "COMMS";
 
 function calcStats(history: TelemetryPoint[], currentVal: number) {
   if (history.length === 0) return { min: currentVal, max: currentVal, avg: currentVal };
@@ -131,15 +131,18 @@ export default function Telemetry() {
       "GPS Satellites": f.gps.satellites,
       "Battery Voltage (V)": f.battery.voltage,
       "Battery Current (A)": f.battery.current,
+      "Battery Power (W)": f.batteryPower ?? f.battery.voltage * f.battery.current,
       "Battery Level (%)": f.battery.percentage,
       "Battery Temp (C)": f.battery.temperature,
       "Fuel Cell Voltage (V)": f.fuelCell.voltage,
       "Fuel Cell Current (A)": f.fuelCell.current,
+      "Fuel Cell Power (W)": f.fcPower ?? f.fuelCell.voltage * f.fuelCell.current,
       "Fuel Cell Temp (C)": f.fuelCell.temperature,
       "Fuel Cell Tank (%)": f.fuelCell.tankPercentage,
       "Fuel Cell Pressure (bar)": f.fuelCell.pressure,
       "DC Bus Voltage (V)": f.dcBus.voltage,
       "DC Bus Current (A)": f.dcBus.current,
+      "DC Bus Power (W)": f.dcBusPower ?? f.dcBus.voltage * f.dcBus.current,
       "Motor Power (W)": f.motor?.power ?? 0,
       "RSSI (dBm)": f.signal.rssi,
     }));
@@ -153,10 +156,10 @@ export default function Telemetry() {
 
   // Helper: Export Telemetry Snapshots to CSV
   const exportSnapshotsToCSV = (frames: Telemetry[], filename: string) => {
-    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),Latitude,Longitude,Satellites,BatVoltage(V),BatCurrent(A),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),MotorPower(W),RSSI(dBm)\n";
+    let csv = "Timestamp,EpochMs,Altitude(m),Airspeed(m/s),Roll(deg),Pitch(deg),Yaw(deg),Latitude,Longitude,Satellites,BatVoltage(V),BatCurrent(A),BatPower(W),BatLevel(%),BatTemp(C),FCVoltage(V),FCCurrent(A),FCPower(W),FCTemp(C),FCTank(%),FCPressure(bar),DCBusVoltage(V),DCBusCurrent(A),DCBusPower(W),MotorPower(W),RSSI(dBm)\n";
 
     frames.forEach((f) => {
-      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.gps.latitude.toFixed(6)},${f.gps.longitude.toFixed(6)},${f.gps.satellites},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi}\n`;
+      csv += `${new Date(f.timestamp).toLocaleTimeString()},${f.timestamp},${f.flight.altitude.toFixed(2)},${f.flight.speed.toFixed(2)},${f.flight.roll.toFixed(1)},${f.flight.pitch.toFixed(1)},${f.flight.yaw.toFixed(1)},${f.gps.latitude.toFixed(6)},${f.gps.longitude.toFixed(6)},${f.gps.satellites},${f.battery.voltage.toFixed(2)},${f.battery.current.toFixed(2)},${(f.batteryPower ?? f.battery.voltage * f.battery.current).toFixed(1)},${f.battery.percentage.toFixed(1)},${f.battery.temperature.toFixed(1)},${f.fuelCell.voltage.toFixed(2)},${f.fuelCell.current.toFixed(2)},${(f.fcPower ?? f.fuelCell.voltage * f.fuelCell.current).toFixed(1)},${f.fuelCell.temperature.toFixed(1)},${f.fuelCell.tankPercentage.toFixed(1)},${f.fuelCell.pressure.toFixed(1)},${f.dcBus.voltage.toFixed(2)},${f.dcBus.current.toFixed(2)},${(f.dcBusPower ?? f.dcBus.voltage * f.dcBus.current).toFixed(1)},${(f.motor?.power ?? 0).toFixed(1)},${f.signal.rssi}\n`;
     });
 
     const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
@@ -191,6 +194,7 @@ export default function Telemetry() {
           percentage: current.battery.percentage,
           temperature: current.battery.temperature,
         },
+        batteryPower: history.batteryPower[i]?.value ?? 0,
         fuelCell: {
           voltage: history.fuelCellVoltage[i]?.value ?? 0,
           current: history.fuelCellCurrent[i]?.value ?? 0,
@@ -198,10 +202,12 @@ export default function Telemetry() {
           tankPercentage: current.fuelCell.tankPercentage,
           pressure: current.fuelCell.pressure,
         },
+        fcPower: history.fuelCellPower[i]?.value ?? 0,
         dcBus: {
           voltage: history.dcBusVoltage[i]?.value ?? 0,
           current: history.dcBusCurrent[i]?.value ?? 0,
         },
+        dcBusPower: history.dcBusPower[i]?.value ?? 0,
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
       });
@@ -229,6 +235,7 @@ export default function Telemetry() {
           percentage: current.battery.percentage,
           temperature: current.battery.temperature,
         },
+        batteryPower: history.batteryPower[i]?.value ?? 0,
         fuelCell: {
           voltage: history.fuelCellVoltage[i]?.value ?? 0,
           current: history.fuelCellCurrent[i]?.value ?? 0,
@@ -236,10 +243,12 @@ export default function Telemetry() {
           tankPercentage: current.fuelCell.tankPercentage,
           pressure: current.fuelCell.pressure,
         },
+        fcPower: history.fuelCellPower[i]?.value ?? 0,
         dcBus: {
           voltage: history.dcBusVoltage[i]?.value ?? 0,
           current: history.dcBusCurrent[i]?.value ?? 0,
         },
+        dcBusPower: history.dcBusPower[i]?.value ?? 0,
         signal: { rssi: history.rssi[i]?.value ?? 0 },
         motor: { power: history.motorPower[i]?.value ?? 0 },
       });
@@ -263,7 +272,7 @@ export default function Telemetry() {
 
         {/* Subsystem Category Filter Tabs */}
         <div className={styles.tabs}>
-          {(["ALL", "FLIGHT", "GPS", "BATTERY", "FUEL_CELL", "DC_BUS", "COMMS"] as CategoryTab[]).map((tab) => (
+          {(["ALL", "GPS", "BATTERY", "FUEL_CELL", "DC_BUS", "COMMS"] as CategoryTab[]).map((tab) => (
             <button
               key={tab}
               className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
@@ -373,56 +382,6 @@ export default function Telemetry() {
       {/* ── Multi-metric Cards Grid ──────────────────────────── */}
       <div className={styles.grid}>
 
-        {/* Altitude */}
-        {isTabVisible("FLIGHT") && (() => {
-          const stats = calcStats(history.altitude, current.flight.altitude);
-          return (
-            <InstrumentCard label="ALTITUDE (M)" live={connected ? "live" : "lost"}>
-              <div className={styles.cardBody}>
-                <div className={styles.statRow}>
-                  <div>
-                    <span className={styles.statValue}>{current.flight.altitude.toFixed(1)}</span>
-                    <span className={styles.statUnit}>m</span>
-                  </div>
-                  <div className={styles.subStats}>
-                    <span>MIN: {stats.min.toFixed(1)}</span>
-                    <span>MAX: {stats.max.toFixed(1)}</span>
-                    <span>AVG: {stats.avg.toFixed(1)}</span>
-                  </div>
-                </div>
-                <div className={styles.chartWrap}>
-                  <TelemetryLineChart data={history.altitude} color="var(--accent-cyan)" unit="m" />
-                </div>
-              </div>
-            </InstrumentCard>
-          );
-        })()}
-
-        {/* Speed */}
-        {isTabVisible("FLIGHT") && (() => {
-          const stats = calcStats(history.speed, current.flight.speed);
-          return (
-            <InstrumentCard label="AIRSPEED (M/S)" live={connected ? "live" : "lost"}>
-              <div className={styles.cardBody}>
-                <div className={styles.statRow}>
-                  <div>
-                    <span className={styles.statValue}>{current.flight.speed.toFixed(1)}</span>
-                    <span className={styles.statUnit}>m/s</span>
-                  </div>
-                  <div className={styles.subStats}>
-                    <span>MIN: {stats.min.toFixed(1)}</span>
-                    <span>MAX: {stats.max.toFixed(1)}</span>
-                    <span>AVG: {stats.avg.toFixed(1)}</span>
-                  </div>
-                </div>
-                <div className={styles.chartWrap}>
-                  <TelemetryLineChart data={history.speed} color="var(--accent-cyan)" unit="m/s" />
-                </div>
-              </div>
-            </InstrumentCard>
-          );
-        })()}
-
         {/* GPS Fix & Satellites */}
         {isTabVisible("GPS") && (
           <InstrumentCard label="GPS NAVIGATION & FIX" live={connected ? "live" : "lost"}>
@@ -503,6 +462,31 @@ export default function Telemetry() {
           );
         })()}
 
+        {/* Battery Power */}
+        {isTabVisible("BATTERY") && (() => {
+          const power = current.batteryPower ?? current.battery.voltage * current.battery.current;
+          const stats = calcStats(history.batteryPower, power);
+          return (
+            <InstrumentCard label="BATTERY POWER" live={connected ? "live" : "lost"}>
+              <div className={styles.cardBody}>
+                <div className={styles.statRow}>
+                  <div>
+                    <span className={styles.statValue}>{power.toFixed(1)}</span>
+                    <span className={styles.statUnit}>W</span>
+                  </div>
+                  <div className={styles.subStats}>
+                    <span>MAX: {stats.max.toFixed(1)}</span>
+                    <span>AVG: {stats.avg.toFixed(1)}</span>
+                  </div>
+                </div>
+                <div className={styles.chartWrap}>
+                  <TelemetryLineChart data={history.batteryPower} color="var(--accent-cyan)" unit="W" />
+                </div>
+              </div>
+            </InstrumentCard>
+          );
+        })()}
+
         {/* Fuel Cell Voltage */}
         {isTabVisible("FUEL_CELL") && (() => {
           const stats = calcStats(history.fuelCellVoltage, current.fuelCell.voltage);
@@ -551,6 +535,31 @@ export default function Telemetry() {
           );
         })()}
 
+        {/* Fuel Cell Power */}
+        {isTabVisible("FUEL_CELL") && (() => {
+          const power = current.fcPower ?? current.fuelCell.voltage * current.fuelCell.current;
+          const stats = calcStats(history.fuelCellPower, power);
+          return (
+            <InstrumentCard label="FUEL CELL POWER" live={connected ? "live" : "lost"}>
+              <div className={styles.cardBody}>
+                <div className={styles.statRow}>
+                  <div>
+                    <span className={styles.statValue}>{power.toFixed(1)}</span>
+                    <span className={styles.statUnit}>W</span>
+                  </div>
+                  <div className={styles.subStats}>
+                    <span>MAX: {stats.max.toFixed(1)}</span>
+                    <span>AVG: {stats.avg.toFixed(1)}</span>
+                  </div>
+                </div>
+                <div className={styles.chartWrap}>
+                  <TelemetryLineChart data={history.fuelCellPower} color="var(--status-nominal)" unit="W" />
+                </div>
+              </div>
+            </InstrumentCard>
+          );
+        })()}
+
         {/* DC Bus Voltage */}
         {isTabVisible("DC_BUS") && (() => {
           const stats = calcStats(history.dcBusVoltage, current.dcBus.voltage);
@@ -569,6 +578,31 @@ export default function Telemetry() {
                 </div>
                 <div className={styles.chartWrap}>
                   <TelemetryLineChart data={history.dcBusVoltage} color="var(--accent-amber)" unit="V" yDomain={[0, 15]} />
+                </div>
+              </div>
+            </InstrumentCard>
+          );
+        })()}
+
+        {/* DC Bus Power */}
+        {isTabVisible("DC_BUS") && (() => {
+          const power = current.dcBusPower ?? current.dcBus.voltage * current.dcBus.current;
+          const stats = calcStats(history.dcBusPower, power);
+          return (
+            <InstrumentCard label="DC BUS POWER" live={connected ? "live" : "lost"}>
+              <div className={styles.cardBody}>
+                <div className={styles.statRow}>
+                  <div>
+                    <span className={styles.statValue}>{power.toFixed(1)}</span>
+                    <span className={styles.statUnit}>W</span>
+                  </div>
+                  <div className={styles.subStats}>
+                    <span>MAX: {stats.max.toFixed(1)}</span>
+                    <span>AVG: {stats.avg.toFixed(1)}</span>
+                  </div>
+                </div>
+                <div className={styles.chartWrap}>
+                  <TelemetryLineChart data={history.dcBusPower} color="var(--accent-amber)" unit="W" />
                 </div>
               </div>
             </InstrumentCard>

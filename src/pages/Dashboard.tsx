@@ -6,7 +6,6 @@
 
 /* ── Dashboard Page ────────────────────────────────────── */
 import {
-  Gauge as GaugeIcon,
   Battery,
   Flame,
   Zap,
@@ -38,7 +37,6 @@ import styles from "./Dashboard.module.css";
 
 
 export default function Dashboard() {
-  const flight = useTelemetryStore((s) => s.current.flight);
   const battery = useTelemetryStore((s) => s.current.battery);
   const fuelCell = useTelemetryStore((s) => s.current.fuelCell);
   const connectionStatus = useTelemetryStore((s) => s.connectionStatus);
@@ -96,12 +94,6 @@ export default function Dashboard() {
       {/* ════════════════ ROW 1 — STAT CARDS ════════════════ */}
       <section className={styles.statRow}>
         <SolenoidValveCard />
-        <StatCard
-          label="SPD · M/S"
-          value={flight.speed.toFixed(1)}
-          unit="m/s"
-          icon={GaugeIcon}
-        />
         <StatCard
           label="BATT · %"
           value={battery.percentage.toFixed(0)}

@@ -109,12 +109,15 @@ export interface TelemetryHistory {
 
   batteryVoltage: TelemetryPoint[];
   batteryCurrent: TelemetryPoint[];
+  batteryPower: TelemetryPoint[];
 
   fuelCellVoltage: TelemetryPoint[];
   fuelCellCurrent: TelemetryPoint[];
+  fuelCellPower: TelemetryPoint[];
 
   dcBusVoltage: TelemetryPoint[];
   dcBusCurrent: TelemetryPoint[];
+  dcBusPower: TelemetryPoint[];
 
   motorPower: TelemetryPoint[];
 

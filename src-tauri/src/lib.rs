@@ -24,6 +24,8 @@ use tauri::{AppHandle, Emitter, State};
 ///   float dcBusPower;
 /// };
 const STRUCT_TELEMETRY_SIZE: usize = 16 * 4; // 64 bytes (14 original + timeRemaining + h2TimeRemaining)
+/// Extended packet: the 16 floats above followed by roll, pitch, yaw (19 floats = 76 bytes)
+const STRUCT_TELEMETRY_SIZE_ATT: usize = 19 * 4;
 
 #[derive(serde::Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -46,6 +48,10 @@ struct EspTelemetry {
     time_remaining: f32,
     /// Estimated H2 fuel time remaining in hours (sent by ESP32; 0 = unknown)
     h2_time_remaining: f32,
+    /// Attitude in degrees (0 if the packet is the older 64-byte layout)
+    roll: f32,
+    pitch: f32,
+    yaw: f32,
 }
 
 /// Parse the ESP32 64-byte TelemetryData struct (16 little-endian 32-bit IEEE 754 floats).
@@ -81,6 +87,9 @@ fn parse_struct_telemetry(buf: &[u8], len: usize) -> Option<EspTelemetry> {
         dc_bus_power: read_f32(52),
         time_remaining: read_f32(56),
         h2_time_remaining: read_f32(60),
+        roll: if len >= STRUCT_TELEMETRY_SIZE_ATT { read_f32(64) } else { 0.0 },
+        pitch: if len >= STRUCT_TELEMETRY_SIZE_ATT { read_f32(68) } else { 0.0 },
+        yaw: if len >= STRUCT_TELEMETRY_SIZE_ATT { read_f32(72) } else { 0.0 },
     })
 }
 

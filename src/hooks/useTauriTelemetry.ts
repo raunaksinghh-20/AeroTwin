@@ -28,6 +28,10 @@ interface EspStructTelemetry {
   timeRemaining: number;
   /** Estimated H2 fuel hours remaining, 0 = not yet available from ESP32 */
   h2TimeRemaining: number;
+  /** Attitude in degrees */
+  roll: number;
+  pitch: number;
+  yaw: number;
 }
 
 
@@ -42,7 +46,13 @@ function mapEspToTelemetry(esp: EspStructTelemetry): Telemetry {
   return {
     timestamp: Date.now(),
 
-    flight:   { altitude: 0, speed: 0, roll: 0, pitch: 0, yaw: 0 },
+    flight:   {
+      altitude: 0,
+      speed: 0,
+      roll:  esp.roll  ?? 0,
+      pitch: esp.pitch ?? 0,
+      yaw:   esp.yaw   ?? 0,
+    },
     gps:      { latitude: 0, longitude: 0, satellites: 0 },
     signal:   { rssi: -45 },
 
