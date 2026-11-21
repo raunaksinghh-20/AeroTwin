@@ -20,6 +20,7 @@ import { evaluateTelemetryAlerts } from "../lib/thresholds";
 /** Maximum data points kept per history series (~60 s at 2 Hz). */
 const MAX_HISTORY = 120;
 
+
 /* ── Default telemetry snapshot ────────────────────────── */
 
 const DEFAULT_TELEMETRY: Telemetry = {
@@ -52,9 +53,10 @@ function emptyHistory(): TelemetryHistory {
   };
 }
 
+
 /* ── Store shape ───────────────────────────────────────── */
 
-interface TelemetryStore {
+export interface TelemetryStore {
   /** Latest complete telemetry snapshot. */
   current: Telemetry;
 
@@ -78,9 +80,13 @@ interface TelemetryStore {
   /** Set UDP connection status. */
   setConnectionStatus: (s: ConnectionStatus) => void;
 
+  /** Replace the alerts list. */
+  setAlerts: (a: Alert[]) => void;
+
   /** Reset mission timer to now. */
   resetMission: () => void;
 }
+
 
 /* ── Helpers ───────────────────────────────────────────── */
 
@@ -92,6 +98,7 @@ function pushPoint(
   const next = [...series, { time, value }];
   return next.length > MAX_HISTORY ? next.slice(-MAX_HISTORY) : next;
 }
+
 
 /* ── Create store ──────────────────────────────────────── */
 
@@ -139,6 +146,8 @@ export const useTelemetryStore = create<TelemetryStore>((set) => ({
       connectionStatus: s,
       missionStartTime: s === "disconnected" ? Date.now() : state.missionStartTime,
     })),
+
+  setAlerts: (a) => set({ alerts: a }),
 
   resetMission: () =>
     set({ missionStartTime: Date.now(), history: emptyHistory() }),

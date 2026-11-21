@@ -28,6 +28,17 @@ export async function updateBackendUdpPort(
 }
 
 /**
+ * Gets currently active bound UDP port from Rust backend.
+ */
+export async function getBackendUdpPort(): Promise<number | null> {
+  try {
+    return await invoke<number>("get_udp_port");
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Broadcasts a 2-byte command packet [commandType, value] to port 8889.
  * @param commandType 0 = Common Throttle, 1 = Rear Throttle, 2 = Solenoid Valve, 3 = Arm
  * @param value Throttle percentage (0-100), Solenoid state (0 = OFF, 1 = ON), or Arm state (0 = DISARM, 1 = ARM)
@@ -45,3 +56,12 @@ export async function sendCommand(
     console.warn("[Tauri UDP] Failed to send command:", err);
   }
 }
+
+/**
+ * Backward compatibility alias for throttle commands.
+ */
+export const sendThrottleCommand = (
+  throttleType: 0 | 1,
+  value: number
+) => sendCommand(throttleType, value);
+

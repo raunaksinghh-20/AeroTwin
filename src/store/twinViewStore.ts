@@ -16,7 +16,7 @@ export type ViewMode =
 
 export type FaultLevel = "normal" | "warning" | "fault" | "disconnected" | "nodata";
 
-interface TwinViewState {
+export interface TwinViewState {
   /** Current visualization mode. */
   viewMode: ViewMode;
 
@@ -40,6 +40,7 @@ interface TwinViewState {
   setViewMode: (mode: ViewMode) => void;
   setShellOpacity: (opacity: number) => void;
   setExplodedFactor: (factor: number) => void;
+  setShowLabels: (show: boolean) => void;
   toggleLabels: () => void;
   setHighlightedComponent: (id: string | null) => void;
   setFaultOverride: (componentId: string, level: FaultLevel) => void;
@@ -47,7 +48,7 @@ interface TwinViewState {
 }
 
 /** Shell opacity defaults for each view mode. */
-const MODE_SHELL_OPACITY: Record<ViewMode, number> = {
+export const MODE_SHELL_OPACITY: Record<ViewMode, number> = {
   external: 1.0,
   translucent: 0.3,
   internal: 0.05,
@@ -77,6 +78,7 @@ export const useTwinViewStore = create<TwinViewState>((set) => ({
   setExplodedFactor: (factor) =>
     set({ explodedFactor: Math.max(0, Math.min(1, factor)) }),
 
+  setShowLabels: (show) => set({ showLabels: show }),
   toggleLabels: () => set((s) => ({ showLabels: !s.showLabels })),
 
   setHighlightedComponent: (id) => set({ highlightedComponent: id }),
